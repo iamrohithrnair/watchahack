@@ -1,0 +1,36 @@
+# Sensitive subdirectory
+london-nervous-system/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+.env
+.env.*
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Next.js
+.next/
+out/
+node_modules/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# General
+.DS_Store
+*.log
+*.pptx
+.claude/
