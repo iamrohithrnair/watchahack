@@ -4,33 +4,58 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: "◈" },
-  { href: "/investigate", label: "Investigate", icon: "◎" },
-  { href: "/channels", label: "Channels", icon: "◫" },
-  { href: "/cameras", label: "Cameras", icon: "◧" },
+  { href: "/", label: "Map", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" },
+  { href: "/investigate", label: "Query", icon: "M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { href: "/channels", label: "Feed", icon: "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" },
+  { href: "/cameras", label: "CCTV", icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-16 bg-[var(--bg-secondary)] border-r border-[var(--border)] flex flex-col items-center py-4 gap-2">
-      <div className="mb-6 text-xl font-bold text-[var(--accent)]">LC</div>
-      {NAV_ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={`flex flex-col items-center justify-center w-12 h-12 rounded-lg text-xs transition-colors ${
-            pathname === item.href
-              ? "bg-[var(--accent)] text-white"
-              : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]"
-          }`}
-          title={item.label}
-        >
-          <span className="text-lg">{item.icon}</span>
-          <span className="mt-0.5 text-[10px]">{item.label}</span>
-        </Link>
-      ))}
+    <aside className="fixed left-0 top-0 z-40 h-screen w-[60px] bg-[var(--bg-secondary)] border-r border-[var(--border)] flex flex-col items-center pt-3 gap-1">
+      {/* Logo mark */}
+      <div className="mb-4 flex flex-col items-center">
+        <div className="w-8 h-8 rounded-sm bg-[var(--accent)] flex items-center justify-center">
+          <svg viewBox="0 0 24 24" className="w-4 h-4 text-[var(--bg-primary)]" fill="none" stroke="currentColor" strokeWidth={3}>
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.636-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m0-13.086l1.414 1.414M17.95 17.95l1.414 1.414" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex flex-col gap-0.5 flex-1">
+        {NAV_ITEMS.map((item) => {
+          const active = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={item.label}
+              className={`group relative flex flex-col items-center justify-center w-11 h-11 rounded-md transition-all duration-200 ${
+                active
+                  ? "text-[var(--accent)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              }`}
+            >
+              {active && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--accent)] rounded-r" />
+              )}
+              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
+              <span className="text-[9px] mt-0.5 tracking-wider uppercase font-medium" style={{ fontFamily: 'var(--font-mono)' }}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Bottom status dot */}
+      <div className="mb-4 flex flex-col items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }} />
+      </div>
     </aside>
   );
 }

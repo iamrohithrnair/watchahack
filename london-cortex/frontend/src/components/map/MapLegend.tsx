@@ -1,15 +1,27 @@
 export function MapLegend() {
   return (
-    <div className="absolute bottom-4 left-4 z-[1000] bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 text-xs">
-      <div className="font-semibold mb-1">Legend</div>
+    <div
+      className="absolute bottom-4 left-4 z-[1000] bg-[var(--bg-card)]/90 backdrop-blur-sm border border-[var(--border)] rounded-md p-2.5 text-[10px]"
+      style={{ fontFamily: 'var(--font-mono)' }}
+    >
+      <div className="text-[9px] text-[var(--text-muted)] tracking-wider uppercase mb-1.5">Legend</div>
       <div className="space-y-1">
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#22c55e] inline-block" /> Discovery</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#ef4444] inline-block" /> High Severity</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#f59e0b] inline-block" /> Medium Severity</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#3b82f6] inline-block" /> Low Severity</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#6366f1] inline-block" /> Perifovea</div>
-        <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#334155] inline-block" /> Peripheral</div>
+        <LegendRow color="#00e676" label="Discovery" />
+        <LegendRow color="#ff1744" label="Critical" />
+        <LegendRow color="#ffab00" label="Warning" />
+        <LegendRow color="#448aff" label="Info" />
+        <LegendRow color="#00e5c3" label="Fovea" />
+        <LegendRow color="#3a3a58" label="Peripheral" />
       </div>
+    </div>
+  );
+}
+
+function LegendRow({ color, label }: { color: string; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+      <span className="text-[var(--text-secondary)]">{label}</span>
     </div>
   );
 }

@@ -18,14 +18,14 @@ export function LogStream() {
   const virtualizer = useVirtualizer({
     count: filtered.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 24,
-    overscan: 50,
+    estimateSize: () => 22,
+    overscan: 80,
   });
 
   const handleScroll = useCallback(() => {
     if (!parentRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
-    setAutoScroll(scrollHeight - scrollTop - clientHeight < 50);
+    setAutoScroll(scrollHeight - scrollTop - clientHeight < 60);
   }, []);
 
   if (autoScroll && filtered.length > 0) {
@@ -34,29 +34,60 @@ export function LogStream() {
     });
   }
 
+  const counts = entries.reduce(
+    (acc, e) => {
+      acc[e.level] = (acc[e.level] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--border)]">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <div className="flex gap-1">
-          {["ALL", "INFO", "WARNING", "ERROR"].map((level) => (
+          {[
+            { key: "ALL", label: "ALL" },
+            { key: "INFO", label: "INFO" },
+            { key: "WARNING", label: "WARN" },
+            { key: "ERROR", label: "ERR" },
+          ].map(({ key, label }) => (
             <button
-              key={level}
-              onClick={() => setLevelFilter(level)}
-              className={`px-2 py-0.5 text-xs rounded ${
-                levelFilter === level
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--bg-card)] text-[var(--text-secondary)]"
+              key={key}
+              onClick={() => setLevelFilter(key)}
+              className={`px-2 py-0.5 text-[9px] rounded-sm tracking-wider transition-all duration-150 ${
+                levelFilter === key
+                  ? "bg-[var(--accent)] text-[var(--bg-primary)] font-semibold"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-card)]"
               }`}
+              style={{ fontFamily: 'var(--font-mono)' }}
             >
-              {level}
+              {label}
+              {key !== "ALL" && counts[key] ? (
+                <span className="ml-1 opacity-60">{counts[key]}</span>
+              ) : null}
             </button>
           ))}
         </div>
-        <div className="flex gap-2 text-xs text-[var(--text-secondary)]">
-          <span>{filtered.length} lines</span>
-          <button onClick={clear} className="hover:text-[var(--text-primary)]">Clear</button>
+        <div className="flex items-center gap-3 text-[9px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
+          <span>{filtered.length}</span>
+          <button
+            onClick={clear}
+            className="text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+          >
+            CLR
+          </button>
+          <button
+            onClick={() => setAutoScroll(!autoScroll)}
+            className={autoScroll ? "text-[var(--accent)]" : "text-[var(--text-muted)]"}
+          >
+            {autoScroll ? "AUTO" : "PAUSED"}
+          </button>
         </div>
       </div>
+
+      {/* Log entries */}
       <div ref={parentRef} onScroll={handleScroll} className="flex-1 overflow-auto">
         <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
           {virtualizer.getVirtualItems().map((item) => (

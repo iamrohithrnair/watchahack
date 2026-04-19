@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[var(--bg-primary)] text-[var(--text-primary)]">
         <Sidebar />
-        <div className="ml-16 flex flex-col h-screen">
+        <div className="ml-[60px] flex flex-col h-screen">
           <Header />
           <main className="flex-1 overflow-hidden">{children}</main>
         </div>
