@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from aiohttp import web
 
-from .config import DATA_DIR, FRONTEND_PORT, STATIC_DIR
+from .config import DATA_DIR
 from .image_store import THUMBS_DIR, FULL_DIR
 from .memory import MemoryManager
 
@@ -103,7 +103,6 @@ class DashboardServer:
         self._investigations: dict[str, dict] = {}  # thread_id -> {context, evidence_cache}
         self._app: web.Application | None = None
         self._runner: web.AppRunner | None = None
-        self._frontend_runner: web.AppRunner | None = None
         self.log_handler = DashboardLogHandler()
 
     async def start(self, board: MessageBoard, coordinator: Coordinator, memory: MemoryManager | None = None, graph: Any = None, retina: Any = None) -> None:
@@ -151,21 +150,7 @@ class DashboardServer:
 
         self._app = app
 
-        # Static frontend on FRONTEND_PORT (3000)
-        frontend_app = web.Application()
-        frontend_app.router.add_static("/", str(STATIC_DIR), show_index=True)
-        # Serve dashboard.html at root
-        async def _index(request: web.Request) -> web.Response:
-            index_path = STATIC_DIR / "dashboard.html"
-            if index_path.exists():
-                return web.FileResponse(index_path)
-            return web.Response(text="dashboard.html not found", status=404)
-        frontend_app.router.add_get("/", _index)
-        self._frontend_runner = web.AppRunner(frontend_app)
-        await self._frontend_runner.setup()
-        frontend_site = web.TCPSite(self._frontend_runner, "0.0.0.0", FRONTEND_PORT)
-        await frontend_site.start()
-        log.info("Dashboard frontend running at http://localhost:%d", FRONTEND_PORT)
+        # Frontend is served by Next.js on port 3000 — no static server needed
 
         self._runner = web.AppRunner(app)
         await self._runner.setup()
@@ -176,8 +161,6 @@ class DashboardServer:
     async def stop(self) -> None:
         if self._runner:
             await self._runner.cleanup()
-        if self._frontend_runner:
-            await self._frontend_runner.cleanup()
 
     # -- CORS preflight --
 

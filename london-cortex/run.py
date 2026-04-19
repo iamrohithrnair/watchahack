@@ -17,8 +17,8 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from .core.board import MessageBoard
 from .core.config import (
-    BACKEND_PORT, DATA_DIR, FRONTEND_PORT, LOG_DIR, MEMORY_DIR,
-    RATE_LIMITS, get_interval, STATIC_DIR,
+    BACKEND_PORT, DATA_DIR, LOG_DIR, MEMORY_DIR,
+    RATE_LIMITS, get_interval,
 )
 from .core.coordinator import Coordinator
 from .core.dashboard import DashboardServer
