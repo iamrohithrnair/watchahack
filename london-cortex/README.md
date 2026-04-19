@@ -6,7 +6,7 @@ London Cortex is an autonomous city intelligence platform that watches London in
 
 ## Why it feels special
 
-Most city dashboards show data. London Cortex behaves more like a living nervous system.
+Most city dashboards show data. London Cortex behaves more like an intelligent operating system.
 
 It is wired to **106 ingestors** today across transport, air quality, weather, energy, news, public services, finance, infrastructure, satellite feeds, and more. Instead of leaving you to manually connect the dots, it continuously ingests, compares, prioritizes, and explains what matters.
 
@@ -102,7 +102,7 @@ The city is divided into a **500m spatial grid**, and the system treats it like 
 | **Awareness zone** | 🔵 Awareness zone | Moderate resolution — sampled observations, key agents only |
 | **Background** | ⚪ Background | Minimal — only anomalies tracked |
 
-When a serious anomaly appears — or when multiple sources agree that something unusual is happening in the same place — the system triggers a **saccade**: it snaps attention toward that area, promotes the affected cell into focus, and expands attention to the surrounding neighborhood. London Cortex dynamically decides where to pay closer attention, the way a biological nervous system would.
+When a serious anomaly appears — or when multiple sources agree that something unusual is happening in the same place — the system triggers a **saccade**: it snaps attention toward that area, promotes the affected cell into focus, and expands attention to the surrounding neighborhood. London Cortex dynamically decides where to pay closer attention, more like an intelligent operating system than a passive dashboard.
 
 ### Agent conversation channels
 

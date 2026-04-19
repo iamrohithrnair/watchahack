@@ -8,7 +8,7 @@ If you want the short startup-pitch version: **it feels like a city that can exp
 
 ## Why it feels special
 
-Most city dashboards show data. London Cortex behaves more like a living nervous system.
+Most city dashboards show data. London Cortex behaves more like an intelligent operating system.
 
 It is wired to **106 ingestors** today across transport, air quality, weather, energy, news, public services, finance, infrastructure, satellite feeds, and more. Instead of leaving you to manually connect the dots, it continuously ingests, compares, prioritizes, and explains what matters.
 
@@ -46,7 +46,7 @@ The city is divided into a **500m spatial grid**, and the system treats it like 
 
 **What is happening in the background:** the Retina layer splits London into **fovea, perifovea, and periphery**. When a serious anomaly appears - or when multiple sources agree that something unusual is happening in the same place - the system triggers a **saccade**. In plain English: it snaps attention toward that area, promotes the affected cell into focus, and expands attention to the surrounding neighborhood too.
 
-That is a big part of the wow factor. London Cortex is not trying to look at every square meter with the same intensity all the time. It is dynamically deciding where to pay closer attention, the way a biological nervous system would.
+That is a big part of the wow factor. London Cortex is not trying to look at every square meter with the same intensity all the time. It is dynamically deciding where to pay closer attention, more like an intelligent operating system than a passive dashboard.
 
 ### 4. You can open the camera view and instantly ground the signal in reality
 
