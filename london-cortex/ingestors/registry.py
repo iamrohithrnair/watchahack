@@ -95,6 +95,66 @@ INGESTOR_REGISTRY: list[tuple[str, str, str, int, list[str], list[str]]] = [
     # Other
     ("ingest_retail_spending", "cortex.ingestors.retail_spending", "retail_spending", 6, ["retail_spending"], []),
     ("ingest_windy_webcams", "cortex.ingestors.windy_webcams", "windy_webcams", 3, ["windy_webcam"], []),
+
+    # ── New ingestors from london-nervous-system ───────────────────────────────
+
+    # News & Media
+    ("ingest_bbc_london_news", "cortex.ingestors.bbc_london_news", "bbc_london_news", 3, ["bbc_london_news"], []),
+    ("ingest_guardian_news", "cortex.ingestors.guardian_news", "guardian_news", 3, ["guardian_news"], []),
+    ("ingest_uk_headlines", "cortex.ingestors.uk_headlines", "uk_headlines", 4, ["uk_headlines"], []),
+    ("ingest_met_police_news", "cortex.ingestors.met_police_news", "met_police_news", 4, ["met_police_news"], []),
+    ("ingest_gdelt_events", "cortex.ingestors.gdelt_events", "gdelt_events", 3, ["gdelt_events"], []),
+    ("ingest_gdelt_discourse", "cortex.ingestors.gdelt_discourse", "gdelt_discourse", 5, ["gdelt_discourse"], []),
+
+    # Government & Politics
+    ("ingest_hansard", "cortex.ingestors.hansard", "hansard", 7, ["hansard"], []),
+    ("ingest_parliament_petitions", "cortex.ingestors.parliament_petitions", "parliament_petitions", 6, ["parliament_petitions"], []),
+    ("ingest_parliament_calendar", "cortex.ingestors.parliament_calendar", "parliament_calendar", 7, ["parliament_calendar"], []),
+    ("ingest_gov_press", "cortex.ingestors.gov_press", "gov_press", 5, ["gov_press"], []),
+    ("ingest_gov_notices", "cortex.ingestors.gov_notices", "gov_notices", 6, ["gov_notices"], []),
+    ("ingest_london_assembly", "cortex.ingestors.london_assembly", "london_assembly", 7, ["london_assembly"], []),
+    ("ingest_gla_events", "cortex.ingestors.gla_events", "gla_events", 6, ["gla_events"], []),
+    ("ingest_gla_press", "cortex.ingestors.gla_press", "gla_press", 6, ["gla_press"], []),
+    ("ingest_court_judgments", "cortex.ingestors.court_judgments", "court_judgments", 7, ["court_judgments"], []),
+    ("ingest_acled_protests", "cortex.ingestors.acled_protests", "acled_protests", 5, ["acled_protests"], ["ACLED_API_KEY", "ACLED_EMAIL"]),
+    ("ingest_industrial_action", "cortex.ingestors.industrial_action", "industrial_action", 5, ["industrial_action"], []),
+    ("ingest_police_stop_search", "cortex.ingestors.police_stop_search", "police_stop_search", 6, ["police_stop_search"], []),
+
+    # Infrastructure & Energy
+    ("ingest_electricity_prices", "cortex.ingestors.electricity_prices", "electricity_prices", 5, ["electricity_prices"], []),
+    ("ingest_street_manager", "cortex.ingestors.street_manager", "street_manager", 4, ["street_manager"], ["STREET_MANAGER_EMAIL", "STREET_MANAGER_PASSWORD"]),
+    ("ingest_network_outages", "cortex.ingestors.network_outages", "network_outages", 4, ["network_outages"], ["CLOUDFLARE_RADAR_API_TOKEN"]),
+    ("ingest_cloudflare_radar", "cortex.ingestors.cloudflare_radar", "cloudflare_radar", 4, ["cloudflare_radar"], ["CLOUDFLARE_RADAR_API_TOKEN"]),
+    ("ingest_infrastructure_status", "cortex.ingestors.infrastructure_status", "infrastructure_status", 4, ["infrastructure_status"], []),
+    ("ingest_smart_energy", "cortex.ingestors.smart_energy", "smart_energy", 6, ["smart_energy"], []),
+    ("ingest_commodities", "cortex.ingestors.commodities", "commodities", 5, ["commodities"], []),
+
+    # Places & POIs
+    ("ingest_osm_poi", "cortex.ingestors.osm_poi", "osm_poi", 8, ["osm_poi"], []),
+    ("ingest_corporate_hq", "cortex.ingestors.corporate_hq", "corporate_hq", 8, ["corporate_hq"], []),
+    ("ingest_planning", "cortex.ingestors.planning", "planning", 7, ["planning"], []),
+    ("ingest_pla_tides", "cortex.ingestors.pla_tides", "pla_tides", 6, ["pla_tides"], []),
+    ("ingest_flight_tracker", "cortex.ingestors.flight_tracker", "flight_tracker", 5, ["flight_tracker"], []),
+
+    # Events & Entertainment
+    ("ingest_sporting_events", "cortex.ingestors.sporting_events", "sporting_events", 5, ["sporting_events"], []),
+    ("ingest_skiddle_events", "cortex.ingestors.skiddle_events", "skiddle_events", 6, ["skiddle_events"], []),
+    ("ingest_ticketmaster_events", "cortex.ingestors.ticketmaster_events", "ticketmaster_events", 6, ["ticketmaster_events"], []),
+
+    # Transport supplementary
+    ("ingest_cycle_rebalancing", "cortex.ingestors.cycle_rebalancing", "cycle_rebalancing", 5, ["cycle_rebalancing"], []),
+    ("ingest_bt_footfall", "cortex.ingestors.bt_footfall", "bt_footfall", 5, ["bt_footfall"], ["BT_FOOTFALL_API_KEY"]),
+
+    # Environment supplementary
+    ("ingest_met_warnings", "cortex.ingestors.met_warnings", "met_warnings", 4, ["met_warnings"], []),
+    ("ingest_metoffice_obs", "cortex.ingestors.metoffice_obs", "metoffice_obs", 4, ["metoffice_obs"], []),
+    ("ingest_breathe_london", "cortex.ingestors.breathe_london", "breathe_london", 5, ["breathe_london"], []),
+    ("ingest_crowd_density", "cortex.ingestors.crowd_density", "crowd_density", 4, ["crowd_density"], ["BESTTIME_API_KEY"]),
+
+    # Social & Culture
+    ("ingest_flickr_geo_media", "cortex.ingestors.flickr_geo_media", "flickr_geo_media", 7, ["flickr_geo_media"], ["FLICKR_API_KEY"]),
+    ("ingest_social_topics", "cortex.ingestors.social_topics", "social_topics", 5, ["social_topics"], ["TEXTRAZOR_API_KEY"]),
+    ("ingest_worker_sentiment", "cortex.ingestors.worker_sentiment", "worker_sentiment", 5, ["worker_sentiment"], []),
 ]
 
 # Agent registry: (task_name, module_path, func_name, interval_key, priority)

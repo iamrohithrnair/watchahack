@@ -72,6 +72,22 @@ INGESTOR_INTERVALS = {
     "river_flow": 300, "purpleair": 900, "google_aq": 1800, "opensensemap_mobile": 1800,
     "openaq": 900, "national_rail": 300, "tv_schedule": 3600, "nhs_syndromic": 3600,
     "windy_webcams": 540,
+
+    # New ingestors from london-nervous-system
+    "bbc_london_news": 900, "guardian_news": 900, "uk_headlines": 1800,
+    "met_police_news": 1800, "gdelt_events": 900, "gdelt_discourse": 1800,
+    "hansard": 3600, "parliament_petitions": 3600, "parliament_calendar": 3600,
+    "gov_press": 1800, "gov_notices": 3600, "london_assembly": 3600,
+    "gla_events": 3600, "gla_press": 3600, "court_judgments": 3600,
+    "acled_protests": 1800, "industrial_action": 3600, "police_stop_search": 3600,
+    "electricity_prices": 1800, "street_manager": 1800, "network_outages": 1800,
+    "cloudflare_radar": 1800, "infrastructure_status": 900, "smart_energy": 1800,
+    "commodities": 1800, "osm_poi": 86400, "corporate_hq": 86400, "planning": 7200,
+    "pla_tides": 1800, "flight_tracker": 300, "sporting_events": 3600,
+    "skiddle_events": 3600, "ticketmaster_events": 3600, "cycle_rebalancing": 600,
+    "bt_footfall": 600, "met_warnings": 1800, "breathe_london": 1800,
+    "crowd_density": 600, "flickr_geo_media": 1800, "social_topics": 1800,
+    "worker_sentiment": 1800,
 }
 
 # ── Agent Intervals (seconds) ─────────────────────────────────────────────────
