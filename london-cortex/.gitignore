@@ -30,3 +30,7 @@ Thumbs.db
 
 # Restart sentinel
 data/.restart
+
+# Frontend
+frontend/node_modules/
+frontend/.next/

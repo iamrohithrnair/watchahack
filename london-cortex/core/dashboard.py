@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from aiohttp import web
 
-from .config import DATA_DIR
+from .config import DATA_DIR, FRONTEND_PORT, STATIC_DIR
 from .image_store import THUMBS_DIR, FULL_DIR
 from .memory import MemoryManager
 
@@ -33,7 +33,7 @@ DASHBOARD_PORT = 8000
 async def cors_middleware(request: web.Request, handler):
     """CORS middleware to allow frontend on port 3000."""
     response = await handler(request)
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+    response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
@@ -103,6 +103,7 @@ class DashboardServer:
         self._investigations: dict[str, dict] = {}  # thread_id -> {context, evidence_cache}
         self._app: web.Application | None = None
         self._runner: web.AppRunner | None = None
+        self._frontend_runner: web.AppRunner | None = None
         self.log_handler = DashboardLogHandler()
 
     async def start(self, board: MessageBoard, coordinator: Coordinator, memory: MemoryManager | None = None, graph: Any = None, retina: Any = None) -> None:
@@ -138,6 +139,7 @@ class DashboardServer:
         app.router.add_get("/api/map_data", self._api_map_data)
         app.router.add_get("/api/channels", self._api_channels)
         app.router.add_get("/api/retina", self._api_retina)
+        app.router.add_get("/stream", self._api_stream)
         app.router.add_get("/api/investigate", self._api_investigate_sse)
 
         # Static image routes
@@ -149,6 +151,22 @@ class DashboardServer:
 
         self._app = app
 
+        # Static frontend on FRONTEND_PORT (3000)
+        frontend_app = web.Application()
+        frontend_app.router.add_static("/", str(STATIC_DIR), show_index=True)
+        # Serve dashboard.html at root
+        async def _index(request: web.Request) -> web.Response:
+            index_path = STATIC_DIR / "dashboard.html"
+            if index_path.exists():
+                return web.FileResponse(index_path)
+            return web.Response(text="dashboard.html not found", status=404)
+        frontend_app.router.add_get("/", _index)
+        self._frontend_runner = web.AppRunner(frontend_app)
+        await self._frontend_runner.setup()
+        frontend_site = web.TCPSite(self._frontend_runner, "0.0.0.0", FRONTEND_PORT)
+        await frontend_site.start()
+        log.info("Dashboard frontend running at http://localhost:%d", FRONTEND_PORT)
+
         self._runner = web.AppRunner(app)
         await self._runner.setup()
         site = web.TCPSite(self._runner, "0.0.0.0", DASHBOARD_PORT)
@@ -158,13 +176,15 @@ class DashboardServer:
     async def stop(self) -> None:
         if self._runner:
             await self._runner.cleanup()
+        if self._frontend_runner:
+            await self._frontend_runner.cleanup()
 
     # -- CORS preflight --
 
     async def _cors_preflight(self, request: web.Request) -> web.Response:
         """Handle CORS preflight OPTIONS requests."""
         response = web.Response(status=204)
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         return response
@@ -188,7 +208,7 @@ class DashboardServer:
         response.content_type = "text/event-stream"
         response.headers["Cache-Control"] = "no-cache"
         response.headers["X-Accel-Buffering"] = "no"
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response.headers["Access-Control-Allow-Origin"] = "*"
         await response.prepare(request)
 
         thread_data = self._investigations.get(thread_id, {}) if thread_id else {}
@@ -493,6 +513,35 @@ class DashboardServer:
         if not self._retina:
             return web.json_response({"cells": [], "stats": {}, "recent_saccades": []})
         return web.json_response(self._retina.get_retina_state(), dumps=_json_dumps)
+
+    async def _api_stream(self, request: web.Request) -> web.Response:
+        """SSE endpoint for real-time log streaming."""
+        response = web.StreamResponse()
+        response.content_type = "text/event-stream"
+        response.headers["Cache-Control"] = "no-cache"
+        response.headers["X-Accel-Buffering"] = "no"
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        await response.prepare(request)
+
+        last_idx = len(self.log_handler.buffer)
+
+        try:
+            while True:
+                current = list(self.log_handler.buffer)
+                if len(current) > last_idx:
+                    for entry in current[last_idx:]:
+                        try:
+                            data = json.dumps(entry, default=str)
+                            await response.write(f"data: {data}\n\n".encode())
+                        except Exception:
+                            break
+                    last_idx = len(current)
+                elif len(current) < last_idx:
+                    last_idx = len(current)
+                await asyncio.sleep(0.1)
+        except (ConnectionError, asyncio.CancelledError):
+            pass
+        return response
 
 
 def _json_dumps(obj: Any) -> str:
