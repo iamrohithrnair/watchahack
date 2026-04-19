@@ -182,16 +182,10 @@ class VisionInterpreter(BaseAgent):
             lat = data.get("lat")
             lon = data.get("lon")
 
-            # Retina gate: skip LLM analysis for peripheral cells
-            retina = getattr(self.graph, 'retina', None)
-            if retina and location_id:
-                if not retina.should_agent_process(location_id, "vision"):
-                    continue
-
             if not image_url:
                 continue
 
-            # Pre-LLM check: skip blank/failed camera images
+            # Download and save thumbnail regardless of retina zone
             img_bytes = await self._download_image(image_url) if isinstance(image_url, str) else None
             if not img_bytes or len(img_bytes) < 1000:
                 log.debug("[VisionInterpreter] Skipping failed/tiny image for %s", camera_id)
@@ -200,11 +194,20 @@ class VisionInterpreter(BaseAgent):
             if _is_blank_image(img_bytes):
                 log.info("[VisionInterpreter] Skipping offline/blank camera %s", camera_id)
                 self.memory.update_camera_health(camera_id, success=False)
-                # Remove stale thumbnail if one exists
                 thumb = THUMBS_DIR / f"{camera_id}.jpg"
                 if thumb.exists():
                     thumb.unlink(missing_ok=True)
                 continue
+
+            # Always store thumbnail so the camera grid shows feeds
+            self._image_store.store_thumbnail(img_bytes, camera_id)
+            self.memory.update_camera_health(camera_id, success=True)
+
+            # Retina gate: only skip LLM analysis for peripheral cells
+            retina = getattr(self.graph, 'retina', None)
+            if retina and location_id:
+                if not retina.should_agent_process(location_id, "vision"):
+                    continue
 
             try:
                 response_text = await self.call_llm(
@@ -260,14 +263,10 @@ class VisionInterpreter(BaseAgent):
                         ttl_hours=2,
                     )
 
-                # Store images: always thumbnail, full if interesting
-                thumb_path = self._image_store.store_thumbnail(img_bytes, camera_id)
-                full_path = None
+                # Store full image if interesting; thumbnail already saved above
                 if interesting:
-                    full_path = self._image_store.store_full(img_bytes, camera_id)
+                    self._image_store.store_full(img_bytes, camera_id)
 
-                # Update camera health + interest score
-                self.memory.update_camera_health(camera_id, success=True)
                 self.memory.update_camera_score(camera_id, interesting)
 
                 if interesting:

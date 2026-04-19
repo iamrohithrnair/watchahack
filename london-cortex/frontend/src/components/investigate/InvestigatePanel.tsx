@@ -104,42 +104,86 @@ export function InvestigatePanel() {
         )}
 
         {result.events.map((evt, i) => {
-          if (evt.event === "evidence") {
-            return <EvidenceCard key={i} data={evt.data} />;
-          }
-
-          if (evt.event === "reasoning" || evt.event === "answer") {
-            const isAnswer = evt.event === "answer";
+          // Final synthesis — the main answer
+          if (evt.event === "synthesis") {
+            const summary = (evt.data.summary as string) || JSON.stringify(evt.data);
             return (
               <div
                 key={i}
                 className="rounded-[var(--radius-md)] p-4"
                 style={{
                   background: 'var(--bg-card)',
-                  border: `1px solid ${isAnswer ? 'var(--border-active)' : 'var(--border)'}`,
-                  borderLeft: isAnswer ? '3px solid var(--accent)' : '1px solid var(--border)',
-                  boxShadow: isAnswer ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+                  border: '1px solid var(--border-active)',
+                  borderLeft: '3px solid var(--accent)',
+                  boxShadow: 'var(--shadow-md)',
                   animation: 'slide-up 0.25s ease-out',
                 }}
               >
                 <div
                   className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2"
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    color: isAnswer ? 'var(--accent)' : 'var(--text-muted)',
-                  }}
+                  style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}
                 >
-                  {isAnswer ? '◈ Answer' : '· Reasoning'}
+                  ◈ Analysis
                 </div>
                 <div
                   className="text-[13px] whitespace-pre-wrap leading-relaxed"
                   style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)' }}
                 >
-                  {(evt.data.text as string) || (evt.data.content as string) || JSON.stringify(evt.data)}
+                  {summary}
                 </div>
               </div>
             );
           }
+
+          // Step results — show as compact evidence cards
+          if (evt.event === "step_result") {
+            const result = evt.data.result as Record<string, unknown>;
+            const type = result?.type as string;
+            const count = result?.count as number;
+            const items = result?.items as unknown[] | undefined;
+            if (!count || count === 0) return null;
+            return (
+              <div
+                key={i}
+                className="rounded-[var(--radius-md)] px-3 py-2"
+                style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  animation: 'fade-in 0.2s ease-out',
+                }}
+              >
+                <div
+                  className="text-[8px] tracking-[0.15em] uppercase mb-1"
+                  style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
+                >
+                  {type} · {count} result{count !== 1 ? 's' : ''}
+                </div>
+                {items?.slice(0, 3).map((item: unknown, j: number) => {
+                  const it = item as Record<string, unknown>;
+                  return (
+                    <div key={j} className="text-[11px] leading-snug truncate" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-body)' }}>
+                      {(it.description as string) || (it.content as string) || (it.text as string) || ''}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }
+
+          // Status messages — only show non-trivial ones while loading
+          if (evt.event === "status") {
+            const phase = evt.data.phase as string;
+            const message = evt.data.message as string;
+            if (phase === "synthesizing") {
+              return (
+                <div key={i} className="text-[10px] px-1" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', animation: 'fade-in 0.2s' }}>
+                  · {message}
+                </div>
+              );
+            }
+            return null;
+          }
+
           return null;
         })}
 
