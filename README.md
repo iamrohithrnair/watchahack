@@ -1,78 +1,138 @@
 # London Cortex
 
-**An autonomous AI that watches London through 63+ real-time data sources — detecting anomalies, finding hidden connections, and building an evolving understanding of the city.**
+An autonomous AI that watches London through 63+ real-time data sources — detecting anomalies, finding hidden connections, and building an evolving understanding of the city.
 
-## What It Does
+## Quick Start
 
-London Cortex is an autonomous AI system that monitors London as a living city in real time. It continuously ingests data from 63+ sources — TfL cameras, air quality sensors, energy grid status, satellite imagery, financial markets, news feeds, and more — and uses a pipeline of specialized AI agents to detect anomalies, find cross-source patterns, and synthesize grounded insights about what's actually happening across the city.
+### Prerequisites
 
-Every insight carries a confidence score that decays through each layer of inference, requiring multi-source corroboration before anything is surfaced as a genuine discovery. This epistemic integrity model prevents the system from hallucinating patterns — if only one source reports something, the confidence stays low. If three independent sources corroborate it, the system escalates.
+- **Python 3.11+** (required for modern type syntax)
+- **[uv](https://docs.astral.sh/uv/)** (fast Python package manager)
+- **One LLM API key** — either Google Gemini or Z.ai GLM 5.1
 
-To handle the volume of city-wide data, it uses a neuroscience-inspired **Retina** system — a foveal attention model that divides London's spatial grid into attention zones (fovea, perifovea, periphery), allocating full processing resolution only to areas showing anomalous activity while compressing quiet zones. Anomalies in the periphery trigger "saccades" that instantly promote those cells to full attention, mirroring how the human eye rapidly shifts focus. This lets the system monitor all of London while concentrating compute where it matters most.
+### Step 1: Clone and Set Up
 
-## Architecture
+```bash
+git clone https://github.com/iamrohithrnair/watchahack.git
+cd watchahack
+```
+
+### Step 2: Create Virtual Environment
+
+```bash
+uv venv
+```
+
+This creates a `.venv/` directory in the project root.
+
+### Step 3: Install Dependencies
+
+```bash
+uv pip install -r london-cortex/requirements.txt
+```
+
+Key dependencies: aiohttp, aiosqlite, networkx, google-genai, httpx, scipy, numpy, and more.
+
+### Step 4: Configure API Key
+
+Create a `.env` file inside `london-cortex/`:
+
+```bash
+# Option A: Google Gemini (recommended)
+echo 'GEMINI_API_KEY=your_gemini_key_here' > london-cortex/.env
+
+# Option B: Z.ai GLM 5.1
+echo 'GLM_API_KEY=your_glm_key_here' > london-cortex/.env
+echo 'LLM_PROVIDER=glm' >> london-cortex/.env
+```
+
+You can also set both keys and switch providers via the dashboard Settings panel.
+
+### Step 5: Run
+
+From the `watchahack/` root directory:
+
+```bash
+.venv/bin/python -m cortex
+```
+
+Or with auto-restart (survives crashes):
+
+```bash
+cd london-cortex && bash run_loop.sh
+```
+
+### Step 6: Open the Dashboard
+
+- **Dashboard**: http://localhost:3000
+- **API**: http://localhost:8000
+
+The dashboard shows live logs, an interactive map, source health, and an investigation panel. Both ports start automatically when you run the system.
+
+## Stopping
+
+- **Ctrl+C once** — graceful shutdown (waits for in-flight tasks)
+- **Ctrl+C twice** — force exit immediately
+
+## How It Works
+
+### Architecture
 
 ```
-                         ┌─────────────────┐
-                         │    63+ APIs &    │
-                         │   Live Feeds     │
-                         └────────┬────────┘
-                                  │
-                                  ▼
-  ┌───────────────────────────────────────────────────────────────┐
-  │                        INGEST LAYER                           │
-  │  TfL · LAQN · Sentinel · GDELT · yfinance · Met Office · ... │
-  └───────────────────────────┬───────────────────────────────────┘
-                              │ raw observations
-                              ▼
-  ┌───────────────────────────────────────────────────────────────┐
-  │                     RETINA (Attention)                        │
-  │                                                               │
-  │  ◉ Fovea ── full resolution, every observation analyzed       │
-  │  ◎ Perifovea ── medium threshold                              │
-  │  · Periphery ── compressed, but anomalies trigger saccades    │
-  │                 that snap foveal attention to the area         │
-  └───────────────────────────┬───────────────────────────────────┘
-                              │ filtered + prioritized
-                              ▼
-  ┌───────────────────────────────────────────────────────────────┐
-  │                    INTELLIGENCE LAYER                         │
-  │                                                               │
-  │  Interpreters ──▶ Connectors ──▶ Brain (LLM)                  │
-  │  vision, numeric,   spatial,       synthesizes signals,       │
-  │  text, financial    narrative,     epistemic grounding,       │
-  │                     statistical,   generates discoveries      │
-  │                     causal                                    │
-  └──────────┬──────────────────────────────────┬─────────────────┘
-             │                                  │
-             ▼                                  ▼
-  ┌─────────────────────┐           ┌─────────────────────┐
-  │  Validator           │           │  Curiosity &         │
-  │  backtests           │           │  Discovery           │
-  │  predictions,        │           │  self-directed       │
-  │  tracks reliability  │           │  investigation       │
-  └─────────────────────┘           └─────────────────────┘
-             │                                  │
-             └──────────────┬───────────────────┘
-                            ▼
-  ┌───────────────────────────────────────────────────────────────┐
-  │                      PERSISTENCE                              │
-  │  SQLite + NetworkX graph (500m grid) + EMA baselines          │
-  └───────────────────────────────────────────────────────────────┘
-
-  ┌─────────────────────┐           ┌─────────────────────┐
-  │  Chronicler          │           │  Daemon              │
-  │  weaves multi-day    │           │  self-healing,       │
-  │  narratives from     │           │  spawns Claude Code  │
-  │  accumulated insight │           │  to fix failures     │
-  └─────────────────────┘           └─────────────────────┘
-
-  ┌───────────────────────────────────────────────────────────────┐
-  │                       DASHBOARD                               │
-  │  live log stream · interactive map · source health · images   │
-  │           http://localhost:3000   ·   API: localhost:8000     │
-  └───────────────────────────────────────────────────────────────┘
+                         +------------------+
+                         |    63+ APIs &    |
+                         |   Live Feeds     |
+                         +--------+---------+
+                                  |
+                                  v
+  +---------------------------------------------------------------+
+  |                        INGEST LAYER                           |
+  |  TfL . LAQN . Sentinel . GDELT . yfinance . Met Office . ... |
+  +---------------------------+-----------------------------------+
+                              | raw observations
+                              v
+  +---------------------------------------------------------------+
+  |                     RETINA (Attention)                        |
+  |                                                               |
+  |  Fovea    -- full resolution, every observation analyzed      |
+  |  Perifovea -- medium threshold                               |
+  |  Periphery -- compressed, anomalies trigger saccades         |
+  +---------------------------+-----------------------------------+
+                              | filtered + prioritized
+                              v
+  +---------------------------------------------------------------+
+  |                    INTELLIGENCE LAYER                         |
+  |                                                               |
+  |  Interpreters --> Connectors --> Brain (LLM)                  |
+  |  vision, numeric,  spatial,      synthesizes signals,        |
+  |  text, financial   narrative,    epistemic grounding,        |
+  |                     statistical, generates discoveries       |
+  |                     causal                                    |
+  +----------+----------------------------+----------+-----------+
+             |                            |                     |
+             v                            v                     v
+  +--------------------+     +--------------------+   +------------------+
+  |  Validator         |     |  Curiosity &       |   |  Chronicler      |
+  |  backtests         |     |  Discovery         |   |  multi-day       |
+  |  predictions       |     |  self-directed     |   |  narratives      |
+  +--------------------+     +--------------------+   +------------------+
+             |                            |
+             +-------------+--------------+
+                           |
+                           v
+  +---------------------------------------------------------------+
+  |                      PERSISTENCE                              |
+  |  SQLite + NetworkX graph (500m grid) + EMA baselines          |
+  +---------------------------------------------------------------+
 ```
+
+### Key Concepts
+
+- **Foveal attention (Retina)** — London's ~4,000 grid cells are divided into attention zones. Anomalies in the periphery trigger "saccades" that snap full attention to the area.
+- **Epistemic integrity** — Confidence decays at each processing stage. Multi-source corroboration is required before anything surfaces as a discovery.
+- **Pluggable LLM backend** — Supports Gemini and GLM 5.1. Rate-limited to prevent API errors.
+- **Self-healing daemon** — Watches for failures and can spawn diagnostic processes to fix issues.
+- **Adaptive scheduling** — Ingestors speed up near anomalies, slow down during quiet periods.
 
 ## Data Sources
 
@@ -90,133 +150,87 @@ To handle the volume of city-wide data, it uses a neuroscience-inspired **Retina
 | **Nature** | iNaturalist wildlife sightings |
 | **System Health** | Internal metrics, sensor uptime, provider status, data lineage, APM |
 
-## Dashboard
+Ingestors with missing API keys are silently skipped at startup.
 
-The web dashboard provides:
+## Dashboard Features
 
 - **Live log stream** — WebSocket-powered real-time feed of all agent activity
-- **Interactive map** — Leaflet.js with anomaly markers on London's 500m grid
-- **Source status cards** — health and freshness of each data source
-- **Image viewer** — JamCam snapshots with lightbox and AI annotations
-- **Stats bar** — message count, active anomalies, agent status
-- **Settings panel** — configure LLM provider (Gemini or GLM 5.1) and API keys
+- **Interactive map** — Anomaly markers on London's 500m grid with severity levels
+- **Source health** — Status indicators for each active data source
+- **Channel view** — Agent conversation channels (#discoveries, #hypotheses, #anomalies, #requests, #meta)
+- **Image viewer** — TfL JamCam snapshots with lightbox
+- **Investigation** — Ask questions about observations and anomalies via the right panel
+- **Settings** — Configure LLM provider and API keys from the dashboard
 
-## Getting Started
+## LLM Backends
 
-```bash
-# Clone the repo
-git clone https://github.com/iamrohithrnair/watchahack.git
-cd watchahack
-
-# Create virtual environment and install dependencies
-uv venv
-uv pip install -r london-cortex/requirements.txt
-
-# Create .env with your API key (only one is required)
-echo "GEMINI_API_KEY=your_key_here" > london-cortex/.env
-
-# Run from the watchahack directory
-.venv/bin/python -m cortex
-```
-
-Or with auto-restart:
-
-```bash
-cd london-cortex && bash run_loop.sh
-```
-
-The SQLite database is created automatically on first run. The dashboard is served at `http://localhost:3000` and the API at `http://localhost:8000`.
-
-### LLM Backends
-
-London Cortex supports two LLM backends, configured via `LLM_PROVIDER` in `.env`:
-
-| Provider | Key | Models |
-|----------|-----|--------|
+| Provider | Env Key | Models |
+|----------|---------|--------|
 | `gemini` (default) | `GEMINI_API_KEY` | Gemini 2.0 Flash, Gemini 2.5 Pro |
 | `glm` | `GLM_API_KEY` | GLM 4 Flash, GLM 4 Plus |
 
-All other API keys are optional — ingestors with missing keys are silently skipped.
-
-### API Keys
-
-Ingestors requiring specific keys are skipped at startup if the key is not present. See `core/config.py` for the full list of supported environment variables.
-
-## Important Notes
-
-**Stopping the system:**
-- `Ctrl+C` once → graceful shutdown (waits for in-flight tasks)
-- `Ctrl+C` twice → force exit immediately
-
-**The system is autonomous:**
-- The daemon monitors system health and can spawn Claude Code instances to diagnose and fix failing components
-- Restarts are rate-limited; rapid crash loops trigger a full stop
-
-**API usage:**
-- 60+ ingestors poll APIs at intervals from 2 minutes to daily
-- Most free-tier keys are fine, but some paid tiers may incur costs at scale
-- Ingestors with missing keys are silently skipped
-
-**Data growth:**
-- The SQLite database and image cache grow continuously
-- Images are auto-cleaned (thumbnails after 48h, full images after 7d)
+Configure via `.env` file or the dashboard Settings panel.
 
 ## Project Structure
 
 ```
-london-cortex/
-├── run.py                  # Entry point
-├── __main__.py             # python -m cortex support
-├── requirements.txt
-├── pyproject.toml
-│
-├── core/                   # Infrastructure
-│   ├── board.py            # SQLite message hub (7 tables)
-│   ├── config.py           # Intervals, endpoints, LLM config
-│   ├── coordinator.py      # Adaptive scheduler
-│   ├── daemon.py           # Self-healing watcher
-│   ├── dashboard.py        # aiohttp API server (port 8000)
-│   ├── epistemics.py       # Confidence decay & grounding
-│   ├── graph.py            # NetworkX spatial grid (500m, ~4000 cells)
-│   ├── image_store.py      # Two-tier image storage
-│   ├── llm.py              # Pluggable LLM backend (Gemini + GLM 5.1)
-│   ├── memory.py           # EMA baselines + JSON persistence
-│   ├── models.py           # All dataclasses
-│   ├── retina.py           # Foveal attention zones
-│   └── scheduler.py        # Rate limiter
-│
-├── agents/                 # Intelligence layer
-│   ├── base.py             # LLM integration + board helpers
-│   ├── brain.py            # Main synthesis engine
-│   ├── interpreters.py     # Vision, Numeric, Text, Financial
-│   ├── connectors.py       # Spatial, Narrative, Statistical, Causal
-│   ├── validator.py        # Prediction backtesting
-│   ├── curiosity.py        # Self-directed investigation
-│   ├── chronicler.py       # Multi-day narrative tracking
-│   ├── discovery.py        # Cross-domain exploration
-│   ├── explorers.py        # On-demand hypothesis testing
-│   ├── web_searcher.py     # Web search verification
-│   └── investigator.py     # Interactive investigation
-│
-├── ingestors/              # 63+ data source adapters
-│   ├── base.py             # HTTP client, circuit breaker
-│   ├── registry.py         # Declarative registration table
-│   └── *.py                # One per data source
-│
-└── static/                 # Web dashboard
-    ├── dashboard.html      # Light mode Flat 2.0 UI
-    └── london_grid.json    # 500m grid cell definitions
+watchahack/
++-- cortex/ -> london-cortex/     # Symlink
++-- london-cortex/
+|   +-- run.py                    # Entry point
+|   +-- __main__.py               # python -m cortex support
+|   +-- requirements.txt
+|   +-- pyproject.toml
+|   +-- .env                      # API keys (create this)
+|   |
+|   +-- core/                     # Infrastructure
+|   |   +-- board.py              # SQLite message hub (7 tables)
+|   |   +-- config.py             # Intervals, endpoints, LLM config
+|   |   +-- coordinator.py        # Adaptive scheduler
+|   |   +-- daemon.py             # Self-healing watcher
+|   |   +-- dashboard.py          # aiohttp API + frontend server
+|   |   +-- epistemics.py         # Confidence decay & grounding
+|   |   +-- graph.py              # NetworkX spatial grid (500m)
+|   |   +-- image_store.py        # Two-tier image storage
+|   |   +-- llm.py                # Pluggable LLM backend
+|   |   +-- memory.py             # EMA baselines + JSON persistence
+|   |   +-- models.py             # All dataclasses
+|   |   +-- retina.py             # Foveal attention zones
+|   |   +-- scheduler.py          # Rate limiter
+|   |
+|   +-- agents/                   # Intelligence layer
+|   |   +-- brain.py              # Main synthesis engine
+|   |   +-- interpreters.py       # Vision, Numeric, Text, Financial
+|   |   +-- connectors.py         # Spatial, Narrative, Statistical, Causal
+|   |   +-- validator.py          # Prediction backtesting
+|   |   +-- curiosity.py          # Self-directed investigation
+|   |   +-- chronicler.py         # Multi-day narrative tracking
+|   |   +-- discovery.py          # Cross-domain exploration
+|   |   +-- explorers.py          # Hypothesis testing
+|   |   +-- web_searcher.py       # Web verification
+|   |   +-- investigator.py       # Interactive investigation
+|   |
+|   +-- ingestors/                # 63+ data source adapters
+|   |   +-- registry.py           # Declarative registration table
+|   |   +-- *.py                  # One per data source
+|   |
+|   +-- static/                   # Web dashboard
+|   |   +-- dashboard.html        # Line Art Minimalistic UI
+|   |   +-- london_grid.json      # 500m grid cell definitions
+|   |
+|   +-- data/                     # Runtime (auto-created)
+|       +-- graph.db              # SQLite database
+|       +-- images/               # Image cache
+|       +-- memory/               # Memory persistence
+|       +-- logs/                 # System logs
 ```
 
-## Key Design Decisions
+## Notes
 
-- **Foveal attention (Retina)** — The city's ~4,000 grid cells are divided into three zones. When an anomaly fires in a peripheral cell, it triggers a "saccade" that promotes that cell to fovea. Cells decay back to periphery after 30–60 minutes of quiet.
-- **Epistemic integrity** — Confidence decays at each processing stage. Multi-source corroboration is required. Single-source anomalies stay low confidence.
-- **Pluggable LLM backend** — Supports Gemini and GLM 5.1 out of the box. Rate-limited with token-bucket limiter to prevent 429 errors.
-- **Self-healing daemon** — Watches for failing components and spawns Claude Code instances to diagnose and fix issues autonomously.
-- **Adaptive scheduling** — Ingestors run on flexible intervals that speed up near anomalies and slow down during quiet periods. Circuit breakers prevent cascade failures.
-- **Declarative registry** — All 63 ingestors and 15 agents are registered via compact tables, eliminating boilerplate.
+- The SQLite database and image cache grow continuously. Images are auto-cleaned (thumbnails after 48h, full images after 7d).
+- Most data source APIs work with free-tier keys. Some may incur costs at scale.
+- The system is fully autonomous — it continuously ingests, analyzes, and discovers patterns without manual intervention.
 
 ## Built With
 
-Python 3.11+ · asyncio · SQLite (aiosqlite) · NetworkX · Google Gemini / Z.ai GLM 5.1 · Leaflet.js · aiohttp · uv
+Python 3.11+ | asyncio | SQLite (aiosqlite) | NetworkX | Google Gemini / Z.ai GLM 5.1 | Leaflet.js | aiohttp | uv

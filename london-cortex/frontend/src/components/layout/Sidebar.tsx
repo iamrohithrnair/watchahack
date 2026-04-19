@@ -14,19 +14,22 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-[60px] bg-[var(--bg-secondary)] border-r border-[var(--border)] flex flex-col items-center pt-3 gap-1">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-[68px] bg-[var(--bg-card)] border-r border-[var(--border)] flex flex-col items-center pt-4 gap-1" style={{ boxShadow: 'var(--shadow-lg)' }}>
       {/* Logo mark */}
-      <div className="mb-4 flex flex-col items-center">
-        <div className="w-8 h-8 rounded-sm bg-[var(--accent)] flex items-center justify-center">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 text-[var(--bg-primary)]" fill="none" stroke="currentColor" strokeWidth={3}>
+      <div className="mb-5 flex flex-col items-center">
+        <div
+          className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--accent)] flex items-center justify-center"
+          style={{ boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)' }}
+        >
+          <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2.5}>
             <circle cx="12" cy="12" r="3" />
-            <path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.636-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m0-13.086l1.414 1.414M17.95 17.95l1.414 1.414" />
+            <path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.636-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m0-13.086l1.414 1.414M17.95 17.95l1.414 1.414" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-0.5 flex-1">
+      <nav className="flex flex-col gap-1 flex-1">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href;
           return (
@@ -34,17 +37,28 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               title={item.label}
-              className={`group relative flex flex-col items-center justify-center w-11 h-11 rounded-md transition-all duration-200 ${
+              className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-[var(--radius-md)] transition-all duration-200 ${
                 active
-                  ? "text-[var(--accent)]"
-                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+                  ? "bg-[var(--accent-dim)] text-[var(--accent)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]"
               }`}
             >
-              {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[var(--accent)] rounded-r" />
-              )}
-              <svg viewBox="0 0 24 24" className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: item.icon }} />
-              <span className="text-[9px] mt-0.5 tracking-wider uppercase font-medium" style={{ fontFamily: 'var(--font-mono)' }}>
+              <svg
+                viewBox="0 0 24 24"
+                className="w-[18px] h-[18px]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={active ? 2 : 1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                dangerouslySetInnerHTML={{ __html: item.icon }}
+              />
+              <span
+                className={`text-[9px] mt-0.5 tracking-wider uppercase font-medium ${
+                  active ? 'font-semibold' : ''
+                }`}
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
                 {item.label}
               </span>
             </Link>
@@ -52,9 +66,12 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Bottom status dot */}
-      <div className="mb-4 flex flex-col items-center gap-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }} />
+      {/* Bottom status */}
+      <div className="mb-5 flex flex-col items-center gap-1.5">
+        <div
+          className="w-2 h-2 rounded-full bg-[var(--success)]"
+          style={{ boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)', animation: 'pulse-glow 3s ease-in-out infinite' }}
+        />
       </div>
     </aside>
   );

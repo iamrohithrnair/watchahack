@@ -15,19 +15,19 @@ export const POLL_INTERVALS = {
 } as const;
 
 export const LEVEL_COLORS: Record<string, string> = {
-  DEBUG: "#888",
-  INFO: "#3b82f6",
-  WARNING: "#f59e0b",
-  ERROR: "#ef4444",
-  CRITICAL: "#dc2626",
+  DEBUG: "#A0A0B0",
+  INFO: "#6366F1",
+  WARNING: "#F59E0B",
+  ERROR: "#EF4444",
+  CRITICAL: "#DC2626",
 };
 
 export const SEVERITY_COLORS: Record<number, string> = {
-  1: "#22c55e",
-  2: "#3b82f6",
-  3: "#f59e0b",
-  4: "#f97316",
-  5: "#ef4444",
+  1: "#10B981",
+  2: "#3B82F6",
+  3: "#F59E0B",
+  4: "#F97316",
+  5: "#EF4444",
 };
 
 export const CHANNEL_LIST = [
