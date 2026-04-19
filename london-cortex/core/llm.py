@@ -235,8 +235,8 @@ def create_llm_backend(
     api_key = os.getenv("GEMINI_API_KEY", "")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable is required for Gemini backend")
-    flash = flash_model or os.getenv("LLM_FLASH_MODEL", "gemini-2.0-flash")
-    pro = pro_model or os.getenv("LLM_PRO_MODEL", "gemini-2.5-pro")
+    flash = flash_model or os.getenv("LLM_FLASH_MODEL", "gemini-3.1-flash-lite-preview")
+    pro = pro_model or os.getenv("LLM_PRO_MODEL", "gemini-3-flash-preview")
     log.info("Using Gemini backend (flash=%s, pro=%s)", flash, pro)
     return GeminiBackend(api_key=api_key, flash_model=flash, pro_model=pro)
 

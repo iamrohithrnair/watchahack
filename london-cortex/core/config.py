@@ -28,8 +28,8 @@ LONDON_BBOX = {
 
 # ── LLM Configuration ─────────────────────────────────────────────────────────
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")  # "gemini" or "glm"
-LLM_FLASH_MODEL = os.getenv("LLM_FLASH_MODEL", "gemini-2.0-flash")
-LLM_PRO_MODEL = os.getenv("LLM_PRO_MODEL", "gemini-2.5-pro")
+LLM_FLASH_MODEL = os.getenv("LLM_FLASH_MODEL", "gemini-3.1-flash-lite-preview")
+LLM_PRO_MODEL = os.getenv("LLM_PRO_MODEL", "gemini-3-flash-preview")
 LLM_RATE_LIMITS = {
     "flash": {"rpm": 60, "burst": 10},
     "pro": {"rpm": 30, "burst": 5},

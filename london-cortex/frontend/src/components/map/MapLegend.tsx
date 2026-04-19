@@ -18,9 +18,9 @@ export function MapLegend() {
         <Row color="#5B7A90" label="Low (S2)" />
         <Row color="#4D7C58" label="Info (S1)" />
         <div className="h-px my-1.5" style={{ background: 'var(--border)' }} />
-        <Row color="#B8603A" label="Fovea zone" dot />
-        <Row color="#647D8E" label="Perifovea" dot />
-        <Row color="#DDD7CC" label="Peripheral" dot />
+        <Row color="#B8603A" label="Focus zone" dot />
+        <Row color="#647D8E" label="Awareness zone" dot />
+        <Row color="#DDD7CC" label="Background" dot />
       </div>
     </div>
   );
