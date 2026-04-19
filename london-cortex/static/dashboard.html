@@ -8,23 +8,18 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root {
-    --bg: #f0f4f8;
+    --bg: #faf6ef;
     --bg2: #ffffff;
-    --bg3: #e2e8f0;
-    --fg: #1a202c;
-    --dim: #718096;
-    --accent: #4f46e5;
-    --accent2: #06b6d4;
-    --accent-glow: rgba(79, 70, 229, 0.15);
-    --green: #10b981;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --border: #e2e8f0;
-    --gradient-1: linear-gradient(135deg, #4f46e5, #06b6d4);
-    --gradient-2: linear-gradient(135deg, #10b981, #06b6d4);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --bg3: #f0ebe0;
+    --fg: #3d3529;
+    --dim: #9b8e7e;
+    --accent: #8b7355;
+    --accent-glow: rgba(139, 115, 85, 0.10);
+    --green: #7a9a6d;
+    --amber: #c49a6c;
+    --red: #b85c4f;
+    --border: #e0d8c8;
+    --line: 1px solid var(--border);
 }
 
 *, *::before, *::after {
@@ -34,10 +29,10 @@
 }
 
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Georgia', 'Times New Roman', serif;
     background: var(--bg);
     color: var(--fg);
-    line-height: 1.5;
+    line-height: 1.6;
     overflow: hidden;
     height: 100vh;
 }
@@ -48,11 +43,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
-    height: 52px;
+    padding: 0 24px;
+    height: 48px;
     background: var(--bg2);
-    border-bottom: 2px solid transparent;
-    border-image: var(--gradient-1) 1;
+    border-bottom: var(--line);
     position: relative;
     z-index: 100;
 }
@@ -60,71 +54,80 @@ body {
 .header-left {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 24px;
 }
 
 .header-title {
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
     color: var(--fg);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-variant: small-caps;
 }
 
 .header-title svg {
     flex-shrink: 0;
+    stroke: var(--accent);
 }
 
 .header-stats {
     display: flex;
-    gap: 20px;
-    font-size: 13px;
+    gap: 24px;
+    font-size: 12px;
     color: var(--dim);
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .header-stat {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .header-stat .value {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--accent);
 }
 
 .header-right {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .connection-status {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     color: var(--dim);
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--green);
+    border: 1.5px solid var(--green);
+    background: transparent;
     flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(16,185,129,0.5);
+}
+
+.status-dot.connected {
+    background: var(--green);
 }
 
 .status-dot.disconnected {
-    background: var(--red);
+    border-color: var(--red);
+    background: transparent;
 }
 
 .status-dot.connecting {
-    background: var(--amber);
-    animation: pulse-dot 1.2s ease-in-out infinite;
+    border-color: var(--amber);
+    animation: pulse-dot 2s ease-in-out infinite;
 }
 
 @keyframes pulse-dot {
@@ -133,25 +136,24 @@ body {
 }
 
 .thinking-bar {
-    height: 3px;
-    background: var(--gradient-1);
+    height: 1px;
+    background: var(--accent);
     position: absolute;
     bottom: 0;
     left: 0;
     width: 0;
     transition: width 0.3s ease;
     opacity: 0;
-    box-shadow: 0 0 8px rgba(79,70,229,0.4);
 }
 
 .thinking-bar.active {
     opacity: 1;
-    animation: thinking-slide 2s ease-in-out infinite;
+    animation: thinking-slide 3s ease-in-out infinite;
 }
 
 @keyframes thinking-slide {
     0% { width: 0; left: 0; }
-    50% { width: 40%; left: 30%; }
+    50% { width: 30%; left: 35%; }
     100% { width: 0; left: 100%; }
 }
 
@@ -159,41 +161,42 @@ body {
 
 .main {
     display: flex;
-    height: calc(100vh - 52px);
+    height: calc(100vh - 48px);
 }
 
 /* ── Left Sidebar ─────────────────────────────────────── */
 
 .sidebar-left {
-    width: 260px;
-    min-width: 260px;
+    width: 250px;
+    min-width: 250px;
     background: var(--bg2);
-    border-right: 1px solid var(--border);
+    border-right: var(--line);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .sidebar-section {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
+    padding: 16px;
+    border-bottom: var(--line);
 }
 
 .sidebar-section-title {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    letter-spacing: 1.2px;
     color: var(--dim);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .sidebar-section-title svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     stroke: var(--dim);
 }
 
@@ -202,16 +205,16 @@ body {
 .source-cards {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
 }
 
 .source-card {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 13px;
+    padding: 5px 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     transition: background 0.15s;
 }
 
@@ -224,22 +227,24 @@ body {
     height: 6px;
     border-radius: 50%;
     flex-shrink: 0;
+    border: 1px solid;
 }
 
-.source-dot.healthy { background: var(--green); }
-.source-dot.warning { background: var(--amber); }
-.source-dot.error   { background: var(--red); }
-.source-dot.unknown  { background: var(--dim); }
+.source-dot.healthy { border-color: var(--green); background: var(--green); }
+.source-dot.warning { border-color: var(--amber); background: var(--amber); }
+.source-dot.error   { border-color: var(--red); background: var(--red); }
+.source-dot.unknown  { border-color: var(--dim); background: transparent; }
 
 .source-name {
     flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--fg);
 }
 
 .source-time {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--dim);
     white-space: nowrap;
 }
@@ -256,15 +261,16 @@ body {
 .channel-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 2px;
-    padding: 10px 16px 0;
+    gap: 0;
+    padding: 12px 16px 0;
 }
 
 .channel-tab {
-    padding: 5px 10px;
-    font-size: 12px;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    border: none;
+    border-bottom: 1.5px solid transparent;
     background: none;
     color: var(--dim);
     cursor: pointer;
@@ -272,26 +278,23 @@ body {
     align-items: center;
     gap: 5px;
     transition: all 0.15s;
-    position: relative;
 }
 
 .channel-tab:hover {
     color: var(--fg);
-    background: var(--bg3);
 }
 
 .channel-tab.active {
     color: var(--fg);
-    background: var(--bg3);
-    border-color: var(--border);
-    font-weight: 500;
+    border-bottom-color: var(--accent);
 }
 
 .channel-badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
+    background: transparent;
+    color: var(--accent);
+    font-size: 9px;
     font-weight: 600;
+    border: 1px solid var(--border);
     min-width: 16px;
     height: 16px;
     border-radius: 8px;
@@ -312,7 +315,8 @@ body {
 .channel-msg {
     padding: 8px 0;
     border-bottom: 1px solid var(--bg3);
-    font-size: 13px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .channel-msg:last-child { border-bottom: none; }
@@ -320,24 +324,24 @@ body {
 .channel-msg-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 3px;
+    gap: 8px;
+    margin-bottom: 2px;
 }
 
 .channel-msg-agent {
     font-weight: 600;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--accent);
 }
 
 .channel-msg-time {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--dim);
 }
 
 .channel-msg-body {
     color: var(--fg);
-    line-height: 1.45;
+    line-height: 1.5;
     word-break: break-word;
 }
 
@@ -355,20 +359,21 @@ body {
     display: flex;
     align-items: center;
     padding: 0 16px;
-    height: 40px;
+    height: 36px;
     background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    gap: 2px;
+    border-bottom: var(--line);
+    gap: 0;
 }
 
 .view-tab {
     padding: 6px 14px;
-    font-size: 13px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     border: none;
+    border-bottom: 1.5px solid transparent;
     background: none;
     color: var(--dim);
     cursor: pointer;
-    border-radius: 4px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -377,19 +382,16 @@ body {
 
 .view-tab:hover {
     color: var(--fg);
-    background: var(--bg3);
 }
 
 .view-tab.active {
-    color: var(--bg2);
-    background: var(--accent);
-    font-weight: 600;
-    box-shadow: var(--shadow-sm);
+    color: var(--fg);
+    border-bottom-color: var(--accent);
 }
 
 .view-tab svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
 
 .view-tab-controls {
@@ -400,13 +402,13 @@ body {
 }
 
 .toggle-btn {
-    padding: 4px 10px;
-    font-size: 12px;
-    border: 1px solid var(--border);
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    border: var(--line);
     background: var(--bg2);
     color: var(--dim);
     cursor: pointer;
-    border-radius: 4px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -421,12 +423,11 @@ body {
 .toggle-btn.active {
     color: var(--accent);
     border-color: var(--accent);
-    background: rgba(45,125,210,0.06);
 }
 
 .toggle-btn svg {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
 }
 
 /* Log view */
@@ -444,19 +445,19 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border);
+    padding: 6px 16px;
+    border-bottom: var(--line);
     background: var(--bg2);
 }
 
 .log-controls button {
-    padding: 4px 10px;
-    font-size: 12px;
-    border: 1px solid var(--border);
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    border: var(--line);
     background: var(--bg2);
     color: var(--dim);
     cursor: pointer;
-    border-radius: 4px;
     transition: all 0.15s;
 }
 
@@ -473,18 +474,18 @@ body {
 .log-scroll {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 0;
+    padding: 4px 0;
     background: var(--bg);
 }
 
 .log-entry {
     display: flex;
-    gap: 10px;
-    padding: 3px 16px;
-    font-size: 12px;
+    gap: 12px;
+    padding: 2px 16px;
+    font-size: 11px;
     font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-    line-height: 1.6;
-    border-left: 2px solid transparent;
+    line-height: 1.7;
+    border-left: 1.5px solid transparent;
     transition: background 0.1s;
 }
 
@@ -495,7 +496,7 @@ body {
 .log-entry.level-INFO    { border-left-color: var(--green); }
 .log-entry.level-WARNING { border-left-color: var(--amber); }
 .log-entry.level-ERROR   { border-left-color: var(--red); }
-.log-entry.level-DEBUG   { border-left-color: var(--dim); }
+.log-entry.level-DEBUG   { border-left-color: var(--border); }
 
 .log-ts {
     color: var(--dim);
@@ -507,7 +508,7 @@ body {
     font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
-    min-width: 56px;
+    min-width: 52px;
 }
 
 .log-entry.level-INFO    .log-level { color: var(--green); }
@@ -544,12 +545,13 @@ body {
 }
 
 .leaflet-container {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .map-popup {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.5;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .map-popup strong {
@@ -558,7 +560,7 @@ body {
 
 .map-popup .popup-detail {
     color: var(--dim);
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .map-legend {
@@ -566,19 +568,19 @@ body {
     bottom: 20px;
     right: 20px;
     background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: var(--line);
     padding: 10px 14px;
     z-index: 1000;
-    font-size: 12px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .map-legend-title {
     font-weight: 600;
     margin-bottom: 6px;
-    font-size: 11px;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--dim);
 }
 
@@ -590,9 +592,10 @@ body {
 }
 
 .map-legend-circle {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
+    border: 1px solid;
 }
 
 /* Camera panel */
@@ -603,8 +606,7 @@ body {
     left: 20px;
     right: 20px;
     background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: var(--line);
     z-index: 1000;
     display: none;
     max-height: 240px;
@@ -618,23 +620,26 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 8px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
+    border-bottom: var(--line);
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--dim);
 }
 
 .camera-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 8px;
+    gap: 6px;
     padding: 10px 14px;
     overflow-y: auto;
     max-height: 200px;
 }
 
 .camera-thumb {
-    border-radius: 4px;
-    border: 1px solid var(--border);
+    border: var(--line);
     overflow: hidden;
     cursor: pointer;
     transition: border-color 0.15s;
@@ -651,22 +656,24 @@ body {
     object-fit: cover;
     display: block;
     background: var(--bg3);
+    filter: sepia(0.15);
 }
 
 .camera-thumb-label {
-    padding: 4px 6px;
-    font-size: 11px;
+    padding: 3px 6px;
+    font-size: 10px;
     color: var(--dim);
     background: var(--bg);
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 /* ── Right Sidebar (Investigation) ────────────────────── */
 
 .sidebar-right {
-    width: 320px;
-    min-width: 320px;
+    width: 300px;
+    min-width: 300px;
     background: var(--bg2);
-    border-left: 1px solid var(--border);
+    border-left: var(--line);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -685,29 +692,32 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: var(--line);
 }
 
 .sidebar-right-title {
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     display: flex;
     align-items: center;
     gap: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--dim);
 }
 
 .sidebar-right-title svg {
-    width: 15px;
-    height: 15px;
+    width: 14px;
+    height: 14px;
     stroke: var(--accent);
 }
 
 .collapse-btn {
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--border);
+    width: 22px;
+    height: 22px;
+    border: var(--line);
     background: var(--bg2);
-    border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -724,13 +734,12 @@ body {
 .expand-btn {
     position: fixed;
     right: 0;
-    top: 60px;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border);
+    top: 56px;
+    width: 24px;
+    height: 24px;
+    border: var(--line);
     border-right: none;
     background: var(--bg2);
-    border-radius: 4px 0 0 4px;
     cursor: pointer;
     display: none;
     align-items: center;
@@ -751,7 +760,7 @@ body {
 
 .investigate-input-wrap {
     padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: var(--line);
 }
 
 .investigate-input-row {
@@ -761,11 +770,10 @@ body {
 
 .investigate-input {
     flex: 1;
-    padding: 7px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    border: var(--line);
     outline: none;
     background: var(--bg);
     color: var(--fg);
@@ -781,12 +789,11 @@ body {
 }
 
 .investigate-btn {
-    padding: 7px 12px;
-    font-size: 13px;
+    padding: 6px 12px;
+    font-size: 12px;
     border: 1px solid var(--accent);
-    background: var(--accent);
-    color: #fff;
-    border-radius: 4px;
+    background: transparent;
+    color: var(--accent);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -796,17 +803,18 @@ body {
 }
 
 .investigate-btn:hover {
-    background: #2566b5;
+    background: var(--accent);
+    color: var(--bg2);
 }
 
 .investigate-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
 .investigate-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
 
 /* Investigate results */
@@ -818,25 +826,25 @@ body {
 }
 
 .investigate-stream {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.7;
     color: var(--fg);
     white-space: pre-wrap;
     word-break: break-word;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: var(--line);
     margin-bottom: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .evidence-cards {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .evidence-card {
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: var(--line);
     padding: 10px 12px;
     transition: border-color 0.15s;
 }
@@ -853,29 +861,29 @@ body {
 }
 
 .evidence-category {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 1px 6px;
-    border-radius: 3px;
-    background: var(--bg3);
+    border: 1px solid var(--border);
+    font-family: 'SF Mono', 'Fira Code', monospace;
     color: var(--dim);
 }
 
-.evidence-category.anomaly { background: #fde8e8; color: var(--red); }
-.evidence-category.observation { background: #e8f4fd; color: var(--accent); }
-.evidence-category.discovery { background: #e8faf0; color: var(--green); }
+.evidence-category.anomaly { border-color: var(--red); color: var(--red); }
+.evidence-category.observation { border-color: var(--accent); color: var(--accent); }
+.evidence-category.discovery { border-color: var(--green); color: var(--green); }
 
 .evidence-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .evidence-body {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--dim);
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 /* Empty state */
@@ -888,24 +896,24 @@ body {
     padding: 40px 20px;
     color: var(--dim);
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
     gap: 8px;
 }
 
 .empty-state svg {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     stroke: var(--border);
     margin-bottom: 4px;
 }
 
 /* Scrollbar */
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
     background: var(--border);
-    border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--dim); }
 
@@ -914,7 +922,7 @@ body {
 .image-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(61, 53, 41, 0.3);
     z-index: 9999;
     display: none;
     align-items: center;
@@ -927,71 +935,86 @@ body {
 .image-modal img {
     max-width: 90vw;
     max-height: 85vh;
-    border-radius: 4px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    border: 1px solid var(--border);
     cursor: default;
+    filter: sepia(0.1);
 }
 
 /* Retina overlay circle */
 
 .retina-zone {
-    fill: rgba(45, 125, 210, 0.08);
+    fill: rgba(139, 115, 85, 0.05);
     stroke: var(--accent);
     stroke-width: 1;
     stroke-dasharray: 4 2;
 }
+
 /* ── Settings Modal ──────────────────────────────────────── */
 
 .settings-btn:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
 
 .settings-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;
+    display: none; position: fixed; inset: 0; background: rgba(61, 53, 41, 0.2);
+    backdrop-filter: blur(2px); z-index: 1000; align-items: center; justify-content: center;
 }
 .settings-overlay.open { display: flex; }
 
 .settings-modal {
-    background: var(--bg2); border-radius: 16px; width: 480px; max-width: 92vw;
-    box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden;
-    animation: modalIn .2s ease;
+    background: var(--bg2); border: var(--line); width: 460px; max-width: 92vw;
+    overflow: hidden;
+    animation: modalIn .15s ease;
 }
-@keyframes modalIn { from { opacity:0; transform:translateY(-12px) scale(.97); } to { opacity:1; transform:none; } }
+@keyframes modalIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
 
 .settings-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+    padding: 20px 24px 16px; border-bottom: var(--line);
 }
-.settings-header h2 { font-size: 17px; font-weight: 700; display:flex; align-items:center; gap:8px; }
+.settings-header h2 {
+    font-size: 12px; font-weight: 600; display:flex; align-items:center; gap:8px;
+    text-transform: uppercase; letter-spacing: 0.8px; font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--dim);
+}
 .settings-header h2 svg { color: var(--accent); }
-.settings-close { background:none; border:none; cursor:pointer; color:var(--dim); padding:4px; border-radius:6px; transition:all .15s; }
-.settings-close:hover { background:var(--bg3); color:var(--fg); }
+.settings-close {
+    background:none; border:none; cursor:pointer; color:var(--dim); padding:4px;
+    transition:all .15s;
+}
+.settings-close:hover { color:var(--fg); }
 
 .settings-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 
 .settings-field label {
-    display: block; font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .5px; color: var(--dim); margin-bottom: 6px;
+    display: block; font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--dim); margin-bottom: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
 }
 .settings-field select, .settings-field input {
-    width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px;
-    font-size: 14px; background: var(--bg); color: var(--fg); outline: none; transition: border-color .2s;
+    width: 100%; padding: 8px 10px; border: var(--line);
+    font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg); color: var(--fg); outline: none; transition: border-color .2s;
 }
-.settings-field select:focus, .settings-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-.settings-field input::placeholder { color: #a0aec0; }
-.settings-field .hint { font-size: 11px; color: var(--dim); margin-top: 4px; }
+.settings-field select:focus, .settings-field input:focus { border-color: var(--accent); }
+.settings-field input::placeholder { color: #bfb5a3; }
+.settings-field .hint { font-size: 10px; color: var(--dim); margin-top: 4px; }
 
-.key-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; margin-top: 4px; }
+.key-status { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; margin-top: 4px; font-family: 'SF Mono', 'Fira Code', monospace; }
 .key-status.set { color: var(--green); }
 .key-status.unset { color: var(--amber); }
 
-.settings-actions { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+.settings-actions { padding: 16px 24px; border-top: var(--line); display: flex; justify-content: flex-end; gap: 10px; }
 .btn-save {
-    background: var(--gradient-1); color: #fff; border: none; padding: 9px 24px; border-radius: 8px;
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity .2s;
+    background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 7px 20px;
+    font-size: 11px; font-family: 'SF Mono', 'Fira Code', monospace; cursor: pointer; transition: all .2s;
+    text-transform: uppercase; letter-spacing: 0.5px;
 }
-.btn-save:hover { opacity: .9; }
-.btn-cancel { background: var(--bg3); color: var(--fg); border: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; cursor: pointer; }
-.btn-cancel:hover { background: var(--border); }
+.btn-save:hover { background: var(--accent); color: var(--bg2); }
+.btn-cancel {
+    background: transparent; color: var(--dim); border: var(--line); padding: 7px 16px;
+    font-size: 11px; font-family: 'SF Mono', 'Fira Code', monospace; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.btn-cancel:hover { color: var(--fg); border-color: var(--fg); }
 </style>
 </head>
 <body>
@@ -1000,36 +1023,33 @@ body {
 
 <header class="header">
     <div class="header-left">
-        <div class="header-title" style="background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#brain-grad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <defs><linearGradient id="brain-grad" x1="0" y1="0" x2="24" y2="24"><stop offset="0%" stop-color="#4f46e5"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+        <div class="header-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
-                <line x1="9" y1="21" x2="15" y2="21"/><line x1="10" y1="17" x2="10" y2="21"/><line x1="14" y1="17" x2="14" y2="21"/>
-                <path d="M9 9h.01M15 9h.01"/>
+                <line x1="9" y1="21" x2="15" y2="21"/>
+                <line x1="10" y1="17" x2="10" y2="21"/>
+                <line x1="14" y1="17" x2="14" y2="21"/>
             </svg>
-            <span style="background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">London Cortex</span>
+            London Cortex
         </div>
         <div class="header-stats">
             <div class="header-stat">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <span>Observations</span>
+                <span>obs</span>
                 <span class="value" id="stat-observations">0</span>
             </div>
             <div class="header-stat">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <span>Anomalies</span>
+                <span>anom</span>
                 <span class="value" id="stat-anomalies">0</span>
             </div>
             <div class="header-stat">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                <span>Agents</span>
+                <span>agents</span>
                 <span class="value" id="stat-agents">0</span>
             </div>
         </div>
     </div>
     <div class="header-right">
-        <button class="settings-btn" id="settings-btn" title="Settings" style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 7px;cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--dim);transition:all .2s;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <button class="settings-btn" id="settings-btn" title="Settings" style="background:none;border:1px solid var(--border);padding:4px 6px;cursor:pointer;display:flex;align-items:center;gap:4px;color:var(--dim);transition:all .2s;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
         </button>
@@ -1057,8 +1077,8 @@ body {
     <aside class="sidebar-left">
         <div class="sidebar-section">
             <div class="sidebar-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                Data Sources
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                Sources
             </div>
             <div class="source-cards" id="source-cards">
                 <!-- Populated by JS -->
@@ -1067,27 +1087,22 @@ body {
         <div class="channels-container">
             <div class="channel-tabs" id="channel-tabs">
                 <button class="channel-tab active" data-channel="discoveries">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 2A2.5 2.5 0 0112 4.5V5a2 2 0 01-2 2 2 2 0 00-2 2v1h10.5a2.5 2.5 0 012 1L22 14l-1.5 3a2.5 2.5 0 01-2 1H8"/><path d="M5.5 18a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/><path d="M15 18a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/></svg>
                     #discoveries
                     <span class="channel-badge hidden" id="badge-discoveries">0</span>
                 </button>
                 <button class="channel-tab" data-channel="hypotheses">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v8m0 0H3m6 0h12M3 9v10a2 2 0 002 2h14a2 2 0 002-2V9"/></svg>
                     #hypotheses
                     <span class="channel-badge hidden" id="badge-hypotheses">0</span>
                 </button>
                 <button class="channel-tab" data-channel="anomalies">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     #anomalies
                     <span class="channel-badge hidden" id="badge-anomalies">0</span>
                 </button>
                 <button class="channel-tab" data-channel="requests">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                     #requests
                     <span class="channel-badge hidden" id="badge-requests">0</span>
                 </button>
                 <button class="channel-tab" data-channel="meta">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                     #meta
                     <span class="channel-badge hidden" id="badge-meta">0</span>
                 </button>
@@ -1105,7 +1120,7 @@ body {
     <div class="center">
         <div class="view-tabs">
             <button class="view-tab active" data-view="log">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 Log
             </button>
             <button class="view-tab" data-view="map">
@@ -1125,7 +1140,7 @@ body {
             <div class="log-controls">
                 <button id="log-pause-btn">Pause</button>
                 <button id="log-clear-btn">Clear</button>
-                <span style="font-size:12px;color:var(--dim);" id="log-count">0 entries</span>
+                <span style="font-size:11px;color:var(--dim);font-family:'SF Mono','Fira Code',monospace;" id="log-count">0 entries</span>
             </div>
             <div class="log-scroll" id="log-scroll">
                 <div class="empty-state" id="log-empty">
@@ -1139,12 +1154,12 @@ body {
         <div class="map-view" id="map-view">
             <div id="map"></div>
             <div class="map-legend">
-                <div class="map-legend-title">Anomaly Severity</div>
-                <div class="map-legend-item"><div class="map-legend-circle" style="background:#2ecc71"></div> 1 - Low</div>
-                <div class="map-legend-item"><div class="map-legend-circle" style="background:#45b7d1"></div> 2 - Notice</div>
-                <div class="map-legend-item"><div class="map-legend-circle" style="background:#f39c12"></div> 3 - Medium</div>
-                <div class="map-legend-item"><div class="map-legend-circle" style="background:#e67e22"></div> 4 - High</div>
-                <div class="map-legend-item"><div class="map-legend-circle" style="background:#e74c3c"></div> 5 - Critical</div>
+                <div class="map-legend-title">Severity</div>
+                <div class="map-legend-item"><div class="map-legend-circle" style="border-color:#7a9a6d;background:#7a9a6d"></div> 1 - Low</div>
+                <div class="map-legend-item"><div class="map-legend-circle" style="border-color:#8b7355;background:#8b7355"></div> 2 - Notice</div>
+                <div class="map-legend-item"><div class="map-legend-circle" style="border-color:#c49a6c;background:#c49a6c"></div> 3 - Medium</div>
+                <div class="map-legend-item"><div class="map-legend-circle" style="border-color:#b8784f;background:#b8784f"></div> 4 - High</div>
+                <div class="map-legend-item"><div class="map-legend-circle" style="border-color:#b85c4f;background:#b85c4f"></div> 5 - Critical</div>
             </div>
             <div class="camera-panel" id="camera-panel">
                 <div class="camera-panel-header">
@@ -1175,7 +1190,7 @@ body {
             <div class="investigate-input-row">
                 <input type="text" class="investigate-input" id="investigate-input" placeholder="Ask about observations, anomalies..." />
                 <button class="investigate-btn" id="investigate-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
             </div>
         </div>
@@ -1204,11 +1219,11 @@ body {
 (function() {
     'use strict';
 
-    const API = 'http://localhost:8000';
+    var API = 'http://localhost:8000';
 
     /* ── State ──────────────────────────────────────── */
 
-    const state = {
+    var state = {
         ws: null,
         wsRetries: 0,
         logs: [],
@@ -1230,14 +1245,14 @@ body {
         thinkingTimeout: null,
     };
 
-    const CHANNEL_NAMES = ['discoveries', 'hypotheses', 'anomalies', 'requests', 'meta'];
+    var CHANNEL_NAMES = ['discoveries', 'hypotheses', 'anomalies', 'requests', 'meta'];
 
     /* ── DOM refs ───────────────────────────────────── */
 
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => document.querySelectorAll(sel);
+    var $ = function(sel) { return document.querySelector(sel); };
+    var $$ = function(sel) { return document.querySelectorAll(sel); };
 
-    const dom = {
+    var dom = {
         wsDot: $('#ws-status-dot'),
         wsText: $('#ws-status-text'),
         statObs: $('#stat-observations'),
@@ -1267,36 +1282,30 @@ body {
     /* ── Severity color ─────────────────────────────── */
 
     function severityColor(s) {
-        const colors = { 1: '#2ecc71', 2: '#45b7d1', 3: '#f39c12', 4: '#e67e22', 5: '#e74c3c' };
-        return colors[s] || '#6c757d';
+        var colors = { 1: '#7a9a6d', 2: '#8b7355', 3: '#c49a6c', 4: '#b8784f', 5: '#b85c4f' };
+        return colors[s] || '#9b8e7e';
     }
 
     /* ── Time formatting ────────────────────────────── */
 
     function formatTime(ts) {
         if (!ts) return '';
-        const d = new Date(ts);
+        var d = new Date(ts);
         return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }
-
-    function formatTimeShort(ts) {
-        if (!ts) return '';
-        const d = new Date(ts);
-        return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     }
 
     function timeAgo(ts) {
         if (!ts) return '';
-        const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
-        if (diff < 60) return diff + 's ago';
-        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-        return Math.floor(diff / 3600) + 'h ago';
+        var diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+        if (diff < 60) return diff + 's';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm';
+        return Math.floor(diff / 3600) + 'h';
     }
 
     /* ── Escape HTML ────────────────────────────────── */
 
     function esc(s) {
-        const d = document.createElement('div');
+        var d = document.createElement('div');
         d.textContent = s || '';
         return d.innerHTML;
     }
@@ -1308,7 +1317,7 @@ body {
         dom.wsText.textContent = 'Connecting';
 
         try {
-            const wsUrl = API.replace(/^http/, 'ws') + '/ws';
+            var wsUrl = API.replace(/^http/, 'ws') + '/ws';
             state.ws = new WebSocket(wsUrl);
         } catch (e) {
             dom.wsDot.className = 'status-dot disconnected';
@@ -1319,13 +1328,13 @@ body {
 
         state.ws.onopen = function() {
             state.wsRetries = 0;
-            dom.wsDot.className = 'status-dot';
+            dom.wsDot.className = 'status-dot connected';
             dom.wsText.textContent = 'Connected';
         };
 
         state.ws.onmessage = function(e) {
             try {
-                const data = JSON.parse(e.data);
+                var data = JSON.parse(e.data);
                 handleWSMessage(data);
             } catch {
                 addLogEntry({
@@ -1350,18 +1359,31 @@ body {
     }
 
     function scheduleReconnect() {
-        const delay = Math.min(1000 * Math.pow(2, state.wsRetries), 30000);
+        var delay = Math.min(1000 * Math.pow(2, state.wsRetries), 30000);
         state.wsRetries++;
         setTimeout(connectWS, delay);
     }
 
     function handleWSMessage(data) {
-        if (data.type === 'log' || data.level) {
-            addLogEntry(data);
+        if (data.type === 'log') {
+            var entry = data.data || data;
+            addLogEntry({
+                timestamp: entry.time || entry.timestamp || new Date().toISOString(),
+                level: entry.level || 'INFO',
+                agent: entry.name || entry.agent || '---',
+                message: entry.msg || entry.message || ''
+            });
         } else if (data.type === 'thinking') {
             setThinking(data.active !== false);
         } else if (data.type === 'channel') {
             addChannelMessage(data.channel, data);
+        } else if (data.level) {
+            addLogEntry({
+                timestamp: data.timestamp || data.time || new Date().toISOString(),
+                level: data.level,
+                agent: data.agent || data.name || '---',
+                message: data.message || data.msg || ''
+            });
         } else {
             addLogEntry({
                 timestamp: data.timestamp || new Date().toISOString(),
@@ -1380,18 +1402,17 @@ body {
         state.logs.push(entry);
         state.logCount++;
 
-        const el = document.createElement('div');
+        var el = document.createElement('div');
         el.className = 'log-entry level-' + (entry.level || 'INFO');
 
         el.innerHTML =
             '<span class="log-ts">' + esc(formatTime(entry.timestamp)) + '</span>' +
             '<span class="log-level">' + esc(entry.level || 'INFO') + '</span>' +
-            '<span class="log-agent">' + esc(entry.agent || '—') + '</span>' +
+            '<span class="log-agent">' + esc(entry.agent || '---') + '</span>' +
             '<span class="log-msg">' + esc(entry.message || '') + '</span>';
 
         dom.logScroll.appendChild(el);
 
-        // Keep max 2000 entries in DOM
         while (dom.logScroll.children.length > 2000) {
             dom.logScroll.removeChild(dom.logScroll.firstChild);
         }
@@ -1439,9 +1460,9 @@ body {
     }
 
     function updateBadge(channel) {
-        const badge = document.getElementById('badge-' + channel);
+        var badge = document.getElementById('badge-' + channel);
         if (!badge) return;
-        const count = state.unread[channel] || 0;
+        var count = state.unread[channel] || 0;
         if (count > 0) {
             badge.textContent = count > 99 ? '99+' : count;
             badge.classList.remove('hidden');
@@ -1451,7 +1472,7 @@ body {
     }
 
     function renderChannelMessages() {
-        const msgs = state.channels[state.activeChannel] || [];
+        var msgs = state.channels[state.activeChannel] || [];
         if (msgs.length === 0) {
             dom.channelMessages.innerHTML =
                 '<div class="empty-state">' +
@@ -1461,10 +1482,10 @@ body {
             return;
         }
 
-        let html = '';
-        const recent = msgs.slice(-100);
-        for (let i = 0; i < recent.length; i++) {
-            const m = recent[i];
+        var html = '';
+        var recent = msgs.slice(-100);
+        for (var i = 0; i < recent.length; i++) {
+            var m = recent[i];
             html +=
                 '<div class="channel-msg">' +
                 '<div class="channel-msg-header">' +
@@ -1482,9 +1503,9 @@ body {
 
     async function pollStats() {
         try {
-            const res = await fetch(API + '/api/stats');
+            var res = await fetch(API + '/api/stats');
             if (!res.ok) return;
-            const data = await res.json();
+            var data = await res.json();
             state.stats = data;
             dom.statObs.textContent = data.observations || 0;
             dom.statAnom.textContent = data.anomalies || 0;
@@ -1496,28 +1517,28 @@ body {
 
     async function pollTasks() {
         try {
-            const res = await fetch(API + '/api/tasks');
+            var res = await fetch(API + '/api/tasks');
             if (!res.ok) return;
-            const data = await res.json();
+            var data = await res.json();
             renderSources(data);
         } catch {}
     }
 
     function renderSources(tasks) {
-        const tasksArr = Array.isArray(tasks) ? tasks : (tasks.tasks || []);
-        let html = '';
-        for (let i = 0; i < tasksArr.length; i++) {
-            const t = tasksArr[i];
-            const status = t.status || 'unknown';
-            const cls = status === 'healthy' || status === 'running' || status === 'ok'
+        var tasksArr = Array.isArray(tasks) ? tasks : (tasks.tasks || []);
+        var html = '';
+        for (var i = 0; i < tasksArr.length; i++) {
+            var t = tasksArr[i];
+            var status = t.status || 'unknown';
+            var cls = status === 'healthy' || status === 'running' || status === 'ok'
                 ? 'healthy'
                 : status === 'warning' || status === 'degraded'
                     ? 'warning'
                     : status === 'error' || status === 'failed'
                         ? 'error'
                         : 'unknown';
-            const name = t.name || t.task || t.id || ('Source ' + (i + 1));
-            const ts = t.last_run || t.last_update || t.updated_at || '';
+            var name = t.name || t.task || t.id || ('Source ' + (i + 1));
+            var ts = t.last_run || t.last_update || t.updated_at || '';
             html +=
                 '<div class="source-card">' +
                 '<div class="source-dot ' + cls + '"></div>' +
@@ -1526,13 +1547,13 @@ body {
                 '</div>';
         }
 
-        // Also add camera sources
         if (state.cameras && state.cameras.length > 0) {
-            for (const cam of state.cameras) {
-                const cls = cam.status === 'online' ? 'healthy' : cam.status === 'degraded' ? 'warning' : 'error';
+            for (var j = 0; j < state.cameras.length; j++) {
+                var cam = state.cameras[j];
+                var ccls = cam.status === 'online' ? 'healthy' : cam.status === 'degraded' ? 'warning' : 'error';
                 html +=
                     '<div class="source-card">' +
-                    '<div class="source-dot ' + cls + '"></div>' +
+                    '<div class="source-dot ' + ccls + '"></div>' +
                     '<span class="source-name">Camera: ' + esc(cam.name || cam.id || 'unknown') + '</span>' +
                     '<span class="source-time">' + esc(cam.last_update ? timeAgo(cam.last_update) : '') + '</span>' +
                     '</div>';
@@ -1549,21 +1570,21 @@ body {
 
     async function pollChannels() {
         try {
-            const res = await fetch(API + '/api/channels');
+            var res = await fetch(API + '/api/channels');
             if (!res.ok) return;
-            const data = await res.json();
-            const channels = Array.isArray(data) ? data : (data.channels || []);
+            var data = await res.json();
 
-            for (const ch of channels) {
-                const name = ch.name || ch.channel || '';
+            // data is an object { "#discoveries": [...], "#hypotheses": [...], ... }
+            for (var chName in data) {
+                var name = chName.replace('#', '');
                 if (!CHANNEL_NAMES.includes(name)) continue;
                 if (!state.channels[name]) state.channels[name] = [];
 
-                const msgs = ch.messages || [];
+                var msgs = data[chName] || [];
                 if (msgs.length > state.channels[name].length) {
                     state.channels[name] = msgs.map(function(m) {
                         return {
-                            agent: m.agent || m.from || 'unknown',
+                            agent: m.from_agent || m.agent || m.from || 'unknown',
                             timestamp: m.timestamp || new Date().toISOString(),
                             content: m.content || m.text || m.message || ''
                         };
@@ -1580,35 +1601,36 @@ body {
 
     async function pollImages() {
         try {
-            const res = await fetch(API + '/api/images');
+            var res = await fetch(API + '/api/images');
             if (!res.ok) return;
-            const data = await res.json();
-            const images = Array.isArray(data) ? data : (data.images || []);
+            var data = await res.json();
+            var images = Array.isArray(data) ? data : (data.images || []);
             renderCameraGrid(images);
         } catch {}
     }
 
     async function pollCameras() {
         try {
-            const res = await fetch(API + '/api/cameras');
+            var res = await fetch(API + '/api/cameras');
             if (!res.ok) return;
-            const data = await res.json();
+            var data = await res.json();
             state.cameras = Array.isArray(data) ? data : (data.cameras || []);
         } catch {}
     }
 
     function renderCameraGrid(images) {
         if (!images || images.length === 0) {
-            dom.cameraGrid.innerHTML = '<div class="empty-state" style="padding:16px;font-size:12px;">No camera feeds available</div>';
+            dom.cameraGrid.innerHTML = '<div class="empty-state" style="padding:16px;font-size:11px;">No camera feeds available</div>';
             return;
         }
 
-        let html = '';
-        for (const img of images) {
-            const src = img.url || img.thumbnail || img.image || (API + '/api/images/' + (img.id || ''));
-            const label = img.name || img.camera_id || img.id || 'Camera';
+        var html = '';
+        for (var i = 0; i < images.length; i++) {
+            var img = images[i];
+            var src = API + '/images/thumbs/' + (img.name || '');
+            var label = img.name || 'Camera';
             html +=
-                '<div class="camera-thumb" data-src="' + esc(img.full_url || img.url || src) + '">' +
+                '<div class="camera-thumb" data-src="' + esc(API + '/images/full/' + (img.name || '')) + '">' +
                 '<img src="' + esc(src) + '" alt="' + esc(label) + '" loading="lazy" />' +
                 '<div class="camera-thumb-label">' + esc(label) + '</div>' +
                 '</div>';
@@ -1617,7 +1639,7 @@ body {
 
         dom.cameraGrid.querySelectorAll('.camera-thumb').forEach(function(el) {
             el.addEventListener('click', function() {
-                const src = el.getAttribute('data-src');
+                var src = el.getAttribute('data-src');
                 dom.imageModalImg.src = src;
                 dom.imageModal.classList.add('active');
             });
@@ -1635,111 +1657,112 @@ body {
         });
 
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(state.map);
 
-        // Delay invalidateSize so the container is ready
         setTimeout(function() { state.map.invalidateSize(); }, 200);
     }
 
     async function pollMapData() {
         if (!state.map) return;
         try {
-            const res = await fetch(API + '/api/map_data');
+            var res = await fetch(API + '/api/map_data');
             if (!res.ok) return;
-            const data = await res.json();
+            var data = await res.json();
             renderMapMarkers(data);
         } catch {}
     }
 
     function renderMapMarkers(data) {
-        // Clear existing markers
-        for (const m of state.mapMarkers) {
-            state.map.removeLayer(m);
+        for (var i = 0; i < state.mapMarkers.length; i++) {
+            state.map.removeLayer(state.mapMarkers[i]);
         }
         state.mapMarkers = [];
 
-        const items = Array.isArray(data) ? data : (data.markers || data.features || []);
-
-        for (const item of items) {
-            const lat = item.lat || item.latitude || (item.location && item.location.lat);
-            const lng = item.lng || item.lon || item.longitude || (item.location && item.location.lng);
-            if (lat == null || lng == null) continue;
-
-            const severity = item.severity || 1;
-            const color = severityColor(severity);
-            const title = item.title || item.name || item.type || 'Marker';
-
-            const marker = L.circleMarker([lat, lng], {
-                radius: Math.max(5, Math.min(12, severity * 2 + 3)),
+        // Render anomalies
+        var anomalies = data.anomalies || [];
+        for (var j = 0; j < anomalies.length; j++) {
+            var a = anomalies[j];
+            if (a.lat == null || a.lon == null) continue;
+            var color = severityColor(a.severity || 1);
+            var marker = L.circleMarker([a.lat, a.lon], {
+                radius: Math.max(4, Math.min(10, (a.severity || 1) * 2)),
                 fillColor: color,
-                fillOpacity: 0.7,
+                fillOpacity: 0.6,
                 color: color,
                 weight: 1,
-                opacity: 0.9
+                opacity: 0.8
             }).addTo(state.map);
-
-            let popupContent = '<div class="map-popup">';
-            popupContent += '<strong>' + esc(title) + '</strong>';
-            if (item.description) {
-                popupContent += '<div class="popup-detail">' + esc(item.description) + '</div>';
-            }
-            if (item.agent) {
-                popupContent += '<div class="popup-detail">Agent: ' + esc(item.agent) + '</div>';
-            }
-            if (item.severity) {
-                popupContent += '<div class="popup-detail">Severity: ' + item.severity + '</div>';
-            }
-            if (item.timestamp) {
-                popupContent += '<div class="popup-detail">' + esc(formatTime(item.timestamp)) + '</div>';
-            }
-            popupContent += '</div>';
-
-            marker.bindPopup(popupContent);
+            var popup = '<div class="map-popup"><strong>' + esc(a.description || a.source || 'Anomaly') + '</strong>';
+            if (a.severity) popup += '<div class="popup-detail">Severity: ' + a.severity + '</div>';
+            if (a.source) popup += '<div class="popup-detail">Source: ' + esc(a.source) + '</div>';
+            popup += '</div>';
+            marker.bindPopup(popup);
             state.mapMarkers.push(marker);
+        }
+
+        // Render discoveries
+        var discs = data.discoveries || [];
+        for (var k = 0; k < discs.length; k++) {
+            var d = discs[k];
+            if (d.lat == null || d.lon == null) continue;
+            var dm = L.circleMarker([d.lat, d.lon], {
+                radius: 5,
+                fillColor: '#7a9a6d',
+                fillOpacity: 0.5,
+                color: '#7a9a6d',
+                weight: 1,
+                opacity: 0.7
+            }).addTo(state.map);
+            var dp = '<div class="map-popup"><strong>' + esc(d.content || d.from_agent || 'Discovery') + '</strong></div>';
+            dm.bindPopup(dp);
+            state.mapMarkers.push(dm);
         }
     }
 
     async function pollRetina() {
         if (!state.map || !state.retinaVisible) return;
         try {
-            const res = await fetch(API + '/api/retina');
+            var res = await fetch(API + '/api/retina');
             if (!res.ok) return;
-            const data = await res.json();
+            var data = await res.json();
             renderRetinaZones(data);
         } catch {}
     }
 
     function renderRetinaZones(data) {
-        for (const z of state.retinaZones) {
-            state.map.removeLayer(z);
+        for (var i = 0; i < state.retinaZones.length; i++) {
+            state.map.removeLayer(state.retinaZones[i]);
         }
         state.retinaZones = [];
 
-        const zones = Array.isArray(data) ? data : (data.zones || data.attention || []);
-        for (const zone of zones) {
-            const lat = zone.lat || zone.latitude;
-            const lng = zone.lng || zone.lon || zone.longitude;
-            const radius = zone.radius || 500;
-            if (lat == null || lng == null) continue;
+        var retinaData = data.cells || [];
+        if (Array.isArray(retinaData)) {
+            for (var j = 0; j < retinaData.length; j++) {
+                var zone = retinaData[j];
+                var lat = zone.lat || zone.latitude;
+                var lng = zone.lng || zone.lon || zone.longitude;
+                var radius = zone.radius || 500;
+                if (lat == null || lng == null) continue;
 
-            const circle = L.circle([lat, lng], {
-                radius: radius,
-                className: 'retina-zone',
-                fillColor: 'rgba(45,125,210,0.08)',
-                fillOpacity: 0.4,
-                color: '#2d7dd2',
-                weight: 1,
-                dashArray: '4 2',
-                opacity: 0.6
-            }).addTo(state.map);
+                var circle = L.circle([lat, lng], {
+                    radius: radius,
+                    className: 'retina-zone',
+                    fillColor: 'rgba(139,115,85,0.05)',
+                    fillOpacity: 0.3,
+                    color: '#8b7355',
+                    weight: 1,
+                    dashArray: '4 2',
+                    opacity: 0.5
+                }).addTo(state.map);
 
-            if (zone.label) {
-                circle.bindPopup('<div class="map-popup"><strong>' + esc(zone.label) + '</strong></div>');
+                if (zone.label) {
+                    circle.bindPopup('<div class="map-popup"><strong>' + esc(zone.label) + '</strong></div>');
+                }
+                state.retinaZones.push(circle);
             }
-            state.retinaZones.push(circle);
         }
     }
 
@@ -1753,29 +1776,25 @@ body {
 
         dom.investigateResults.innerHTML = '';
 
-        const streamEl = document.createElement('div');
+        var streamEl = document.createElement('div');
         streamEl.className = 'investigate-stream';
         streamEl.textContent = '';
         dom.investigateResults.appendChild(streamEl);
 
-        let fullText = '';
+        var fullText = '';
 
-        const evtSource = new EventSource(
+        var evtSource = new EventSource(
             API + '/api/investigate?q=' + encodeURIComponent(query)
         );
 
-        evtSource.onmessage = function(e) {
+        evtSource.addEventListener('message', function(e) {
             try {
-                const data = JSON.parse(e.data);
+                var data = JSON.parse(e.data);
                 if (data.type === 'text' || data.content) {
                     fullText += data.content || data.text || '';
                     streamEl.textContent = fullText;
-                    dom.investigateResults.scrollTop = dom.investigateResults.scrollHeight;
                 } else if (data.type === 'evidence' || data.evidence) {
                     renderEvidenceCard(data.evidence || data);
-                } else if (data.type === 'done' || data.done) {
-                    evtSource.close();
-                    finishInvestigation();
                 } else {
                     fullText += data.text || data.message || JSON.stringify(data);
                     streamEl.textContent = fullText;
@@ -1785,7 +1804,12 @@ body {
                 streamEl.textContent = fullText;
             }
             dom.investigateResults.scrollTop = dom.investigateResults.scrollHeight;
-        };
+        });
+
+        evtSource.addEventListener('done', function(e) {
+            evtSource.close();
+            finishInvestigation();
+        });
 
         evtSource.onerror = function() {
             evtSource.close();
@@ -1805,17 +1829,17 @@ body {
     }
 
     function renderEvidenceCard(evidence) {
-        let container = dom.investigateResults.querySelector('.evidence-cards');
+        var container = dom.investigateResults.querySelector('.evidence-cards');
         if (!container) {
             container = document.createElement('div');
             container.className = 'evidence-cards';
             dom.investigateResults.appendChild(container);
         }
 
-        const category = evidence.category || evidence.type || 'general';
-        const catClass = ['anomaly', 'observation', 'discovery'].includes(category) ? category : '';
+        var category = evidence.category || evidence.type || 'general';
+        var catClass = ['anomaly', 'observation', 'discovery'].indexOf(category) >= 0 ? category : '';
 
-        const card = document.createElement('div');
+        var card = document.createElement('div');
         card.className = 'evidence-card';
         card.innerHTML =
             '<div class="evidence-card-header">' +
@@ -1843,14 +1867,12 @@ body {
     /* ── Event handlers ─────────────────────────────── */
 
     function setupEvents() {
-        // View tabs
         $$('.view-tab').forEach(function(tab) {
             tab.addEventListener('click', function() {
                 switchView(tab.getAttribute('data-view'));
             });
         });
 
-        // Log controls
         dom.logPauseBtn.addEventListener('click', function() {
             state.logPaused = !state.logPaused;
             dom.logPauseBtn.textContent = state.logPaused ? 'Resume' : 'Pause';
@@ -1867,10 +1889,9 @@ body {
             dom.logCount.textContent = '0 entries';
         });
 
-        // Channel tabs
         $$('.channel-tab').forEach(function(tab) {
             tab.addEventListener('click', function() {
-                const ch = tab.getAttribute('data-channel');
+                var ch = tab.getAttribute('data-channel');
                 if (!ch) return;
                 $$('.channel-tab').forEach(function(t) { t.classList.remove('active'); });
                 tab.classList.add('active');
@@ -1881,7 +1902,6 @@ body {
             });
         });
 
-        // Camera toggle
         $('#camera-toggle-btn').addEventListener('click', function() {
             state.camerasVisible = !state.camerasVisible;
             dom.cameraPanel.classList.toggle('active', state.camerasVisible);
@@ -1894,7 +1914,6 @@ body {
             $('#camera-toggle-btn').classList.remove('active');
         });
 
-        // Investigation panel toggle
         $('#investigate-toggle-btn').addEventListener('click', function() {
             state.rightCollapsed = !state.rightCollapsed;
             dom.sidebarRight.classList.toggle('collapsed', state.rightCollapsed);
@@ -1916,21 +1935,19 @@ body {
             $('#investigate-toggle-btn').classList.add('active');
         });
 
-        // Retina toggle
         $('#retina-toggle').addEventListener('click', function() {
             state.retinaVisible = !state.retinaVisible;
             this.classList.toggle('active', state.retinaVisible);
             if (state.retinaVisible) {
                 pollRetina();
             } else {
-                for (const z of state.retinaZones) { state.map.removeLayer(z); }
+                for (var i = 0; i < state.retinaZones.length; i++) { state.map.removeLayer(state.retinaZones[i]); }
                 state.retinaZones = [];
             }
         });
 
-        // Investigation input
         dom.investigateBtn.addEventListener('click', function() {
-            const q = dom.investigateInput.value.trim();
+            var q = dom.investigateInput.value.trim();
             if (!q || state.investigateActive) return;
             dom.investigateInput.value = '';
             startInvestigation(q);
@@ -1938,14 +1955,13 @@ body {
 
         dom.investigateInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                const q = dom.investigateInput.value.trim();
+                var q = dom.investigateInput.value.trim();
                 if (!q || state.investigateActive) return;
                 dom.investigateInput.value = '';
                 startInvestigation(q);
             }
         });
 
-        // Image modal close
         dom.imageModal.addEventListener('click', function(e) {
             if (e.target === dom.imageModal) {
                 dom.imageModal.classList.remove('active');
@@ -1962,21 +1978,18 @@ body {
     /* ── Polling scheduler ──────────────────────────── */
 
     function startPolling() {
-        // Initial polls
         pollStats();
         pollTasks();
         pollChannels();
         pollImages();
         pollCameras();
 
-        // Set intervals
         setInterval(pollStats, 15000);
         setInterval(pollTasks, 10000);
         setInterval(pollChannels, 15000);
         setInterval(pollImages, 30000);
         setInterval(pollCameras, 30000);
 
-        // Map data polling (only when map view is active)
         setInterval(function() {
             if (state.activeView === 'map') {
                 pollMapData();
@@ -1984,7 +1997,6 @@ body {
             }
         }, 10000);
 
-        // Initial map data
         setTimeout(function() {
             pollMapData();
         }, 1500);
@@ -1999,7 +2011,6 @@ body {
         startPolling();
         renderChannelMessages();
 
-        // Initialize with some placeholder sources
         dom.sourceCards.innerHTML =
             '<div class="source-card"><div class="source-dot unknown"></div><span class="source-name">Connecting...</span><span class="source-time"></span></div>';
     }
@@ -2014,55 +2025,49 @@ body {
 
 // ── Settings Modal ──────────────────────────────────────
 (function() {
-    const overlay = document.createElement('div');
+    var overlay = document.createElement('div');
     overlay.className = 'settings-overlay';
     overlay.id = 'settings-overlay';
-    overlay.innerHTML = `
-    <div class="settings-modal">
-        <div class="settings-header">
-            <h2>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                </svg>
-                Settings
-            </h2>
-            <button class="settings-close" id="settings-close">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <div class="settings-body">
-            <div class="settings-field">
-                <label>LLM Provider</label>
-                <select id="cfg-provider">
-                    <option value="gemini">Google Gemini</option>
-                    <option value="glm">Z.ai GLM 5.1</option>
-                </select>
-            </div>
-            <div class="settings-field">
-                <label>Gemini API Key</label>
-                <input type="password" id="cfg-gemini-key" placeholder="AIza..." autocomplete="off">
-                <div class="key-status" id="gemini-key-status"></div>
-                <div class="hint">Required for Gemini Flash & Pro models</div>
-            </div>
-            <div class="settings-field">
-                <label>GLM 5.1 API Key</label>
-                <input type="password" id="cfg-glm-key" placeholder="your-zhipuai-key" autocomplete="off">
-                <div class="key-status" id="glm-key-status"></div>
-                <div class="hint">Required for Z.ai GLM 5.1 backend</div>
-            </div>
-        </div>
-        <div class="settings-actions">
-            <button class="btn-cancel" id="settings-cancel">Cancel</button>
-            <button class="btn-save" id="settings-save">Save Settings</button>
-        </div>
-    </div>`;
+    overlay.innerHTML =
+    '<div class="settings-modal">' +
+        '<div class="settings-header">' +
+            '<h2>' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>' +
+                '</svg>' +
+                'Settings' +
+            '</h2>' +
+            '<button class="settings-close" id="settings-close">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>' +
+        '</div>' +
+        '<div class="settings-body">' +
+            '<div class="settings-field">' +
+                '<label>LLM Provider</label>' +
+                '<select id="cfg-provider">' +
+                    '<option value="gemini">Google Gemini</option>' +
+                    '<option value="glm">Z.ai GLM 5.1</option>' +
+                '</select>' +
+            '</div>' +
+            '<div class="settings-field">' +
+                '<label>Gemini API Key</label>' +
+                '<input type="password" id="cfg-gemini-key" placeholder="AIza..." autocomplete="off">' +
+                '<div class="key-status" id="gemini-key-status"></div>' +
+                '<div class="hint">Required for Gemini Flash & Pro models</div>' +
+            '</div>' +
+            '<div class="settings-field">' +
+                '<label>GLM 5.1 API Key</label>' +
+                '<input type="password" id="cfg-glm-key" placeholder="your-zhipuai-key" autocomplete="off">' +
+                '<div class="key-status" id="glm-key-status"></div>' +
+                '<div class="hint">Required for Z.ai GLM 5.1 backend</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="settings-actions">' +
+            '<button class="btn-cancel" id="settings-cancel">Cancel</button>' +
+            '<button class="btn-save" id="settings-save">Save</button>' +
+        '</div>' +
+    '</div>';
     document.body.appendChild(overlay);
-
-    function _hash(key) {
-        let h = 0;
-        for (let i = 0; i < key.length; i++) { h = ((h << 5) - h + key.charCodeAt(i)) | 0; }
-        return 'set_' + Math.abs(h).toString(36);
-    }
 
     function _save(keys) {
         try { localStorage.setItem('_cortex_keys', JSON.stringify(keys)); } catch(e) {}
@@ -2071,20 +2076,20 @@ body {
         try { return JSON.parse(localStorage.getItem('_cortex_keys') || '{}'); } catch(e) { return {}; }
     }
     function _updateStatus() {
-        const keys = _load();
-        const gs = document.getElementById('gemini-key-status');
-        const gl = document.getElementById('glm-key-status');
-        gs.textContent = keys.gemini ? '● Key saved' : '● No key set';
+        var keys = _load();
+        var gs = document.getElementById('gemini-key-status');
+        var gl = document.getElementById('glm-key-status');
+        gs.textContent = keys.gemini ? 'Key saved' : 'No key set';
         gs.className = 'key-status ' + (keys.gemini ? 'set' : 'unset');
-        gl.textContent = keys.glm ? '● Key saved' : '● No key set';
+        gl.textContent = keys.glm ? 'Key saved' : 'No key set';
         gl.className = 'key-status ' + (keys.glm ? 'set' : 'unset');
     }
 
-    document.getElementById('settings-btn').addEventListener('click', () => {
-        const keys = _load();
+    document.getElementById('settings-btn').addEventListener('click', function() {
+        var keys = _load();
         document.getElementById('cfg-provider').value = keys.provider || 'gemini';
-        document.getElementById('cfg-gemini-key').value = keys.gemini ? '••••••••' : '';
-        document.getElementById('cfg-glm-key').value = keys.glm ? '••••••••' : '';
+        document.getElementById('cfg-gemini-key').value = keys.gemini ? '--------' : '';
+        document.getElementById('cfg-glm-key').value = keys.glm ? '--------' : '';
         _updateStatus();
         overlay.classList.add('open');
     });
@@ -2092,15 +2097,15 @@ body {
     function _close() { overlay.classList.remove('open'); }
     document.getElementById('settings-close').addEventListener('click', _close);
     document.getElementById('settings-cancel').addEventListener('click', _close);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) _close(); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) _close(); });
 
-    document.getElementById('settings-save').addEventListener('click', () => {
-        const keys = _load();
+    document.getElementById('settings-save').addEventListener('click', function() {
+        var keys = _load();
         keys.provider = document.getElementById('cfg-provider').value;
-        const gk = document.getElementById('cfg-gemini-key').value;
-        const glk = document.getElementById('cfg-glm-key').value;
-        if (gk && gk !== '••••••••') keys.gemini = btoa(gk);
-        if (glk && glk !== '••••••••') keys.glm = btoa(glk);
+        var gk = document.getElementById('cfg-gemini-key').value;
+        var glk = document.getElementById('cfg-glm-key').value;
+        if (gk && gk !== '--------') keys.gemini = btoa(gk);
+        if (glk && glk !== '--------') keys.glm = btoa(glk);
         _save(keys);
         _updateStatus();
         _close();

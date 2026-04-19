@@ -72,6 +72,9 @@ INGESTOR_INTERVALS = {
     "river_flow": 300, "purpleair": 900, "google_aq": 1800, "opensensemap_mobile": 1800,
     "openaq": 900, "national_rail": 300, "tv_schedule": 3600, "nhs_syndromic": 3600,
     "windy_webcams": 540,
+    "companies_house": 86400, "grid_forecast": 1800, "grid_status": 1800,
+    "historic_england": 86400, "land_registry": 86400, "open_plaques": 86400,
+    "uk_parliament": 3600, "vam_museum": 86400,
 
     # New ingestors from london-nervous-system
     "bbc_london_news": 900, "guardian_news": 900, "uk_headlines": 1800,

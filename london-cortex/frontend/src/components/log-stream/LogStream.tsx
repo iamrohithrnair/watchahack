@@ -6,7 +6,7 @@ import { useSSE } from "@/hooks/useSSE";
 import { LogEntry } from "./LogEntry";
 
 export function LogStream() {
-  const { entries, clear } = useSSE("/stream");
+  const { entries, clear, connected } = useSSE("/stream");
   const parentRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [levelFilter, setLevelFilter] = useState<string>("ALL");
@@ -71,6 +71,7 @@ export function LogStream() {
           ))}
         </div>
         <div className="flex items-center gap-3 text-[9px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
+          <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-[var(--accent)]" : "bg-[var(--danger)]"}`} style={!connected ? { animation: 'pulse-glow 1.5s ease-in-out infinite' } : undefined} />
           <span>{filtered.length}</span>
           <button
             onClick={clear}
