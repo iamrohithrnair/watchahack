@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
 export interface InvestigationResult {
   events: { event: string; data: Record<string, unknown> }[];
   threadId: string | null;
@@ -28,7 +30,7 @@ export function useInvestigate() {
     try {
       const params = new URLSearchParams({ q: question });
       if (threadId) params.set("thread_id", threadId);
-      const url = `/api/investigate?${params}`;
+      const url = `${API_BASE}/api/investigate?${params}`;
 
       const res = await fetch(url, { signal: controller.signal });
       if (!res.ok || !res.body) throw new Error(`Investigation failed: ${res.status}`);
@@ -54,10 +56,7 @@ export function useInvestigate() {
             try {
               const data = JSON.parse(line.slice(6));
               newEvents.push({ event: currentEvent, data });
-              setResult((prev) => ({
-                ...prev,
-                events: [...newEvents],
-              }));
+              setResult((prev) => ({ ...prev, events: [...newEvents] }));
             } catch {
               // skip malformed
             }

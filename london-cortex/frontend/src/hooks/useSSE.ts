@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LogEntry } from "@/lib/types";
 
-export function useSSE(url: string) {
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+
+export function useSSE(path: string) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [connected, setConnected] = useState(false);
   const bufferRef = useRef<LogEntry[]>([]);
@@ -12,6 +14,7 @@ export function useSSE(url: string) {
 
   useEffect(() => {
     let alive = true;
+    const url = `${API_BASE}${path}`;
 
     function connect() {
       if (!alive) return;
@@ -36,7 +39,6 @@ export function useSSE(url: string) {
       es.onerror = () => {
         if (alive) setConnected(false);
         es.close();
-        // Reconnect after 3s
         reconnectRef.current = setTimeout(connect, 3000);
       };
     }
@@ -49,7 +51,7 @@ export function useSSE(url: string) {
       esRef.current?.close();
       esRef.current = null;
     };
-  }, [url]);
+  }, [path]);
 
   const clear = useCallback(() => {
     bufferRef.current = [];

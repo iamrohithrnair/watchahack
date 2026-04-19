@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { useInvestigate } from "@/hooks/useInvestigate";
 import { EvidenceCard } from "./EvidenceCard";
 
+const SUGGESTIONS = [
+  "What's happening near Canary Wharf?",
+  "Any unusual air quality readings?",
+  "TfL disruptions in the last hour?",
+];
+
 export function InvestigatePanel() {
   const [question, setQuestion] = useState("");
   const { result, investigate, cancel } = useInvestigate();
@@ -20,22 +26,80 @@ export function InvestigatePanel() {
     setQuestion("");
   };
 
+  const handleSuggestion = (s: string) => {
+    investigate(s, result.threadId || undefined);
+  };
+
+  const isEmpty = result.events.length === 0 && !result.loading;
+
   return (
     <div className="flex flex-col h-full">
+      {/* Messages area */}
       <div className="flex-1 overflow-auto p-5 space-y-3">
-        {result.events.length === 0 && !result.loading && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center mb-4">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" strokeLinecap="round" strokeLinejoin="round" />
+        {isEmpty && (
+          <div
+            className="flex flex-col items-center justify-center h-full text-center"
+            style={{ animation: 'fade-in 0.4s ease-out' }}
+          >
+            {/* Compass line-art icon */}
+            <div
+              className="w-14 h-14 rounded-[var(--radius-xl)] flex items-center justify-center mb-4"
+              style={{
+                border: '1.5px dashed var(--border)',
+                background: 'var(--accent-dim)',
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.25} strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--accent)' }}>
+                <circle cx="12" cy="12" r="9" opacity={0.3} />
+                <circle cx="12" cy="12" r="4" opacity={0.5} />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+                <line x1="12" y1="3" x2="12" y2="8" />
+                <line x1="12" y1="16" x2="12" y2="21" />
+                <line x1="3" y1="12" x2="8" y2="12" />
+                <line x1="16" y1="12" x2="20" y2="12" />
               </svg>
             </div>
-            <p className="text-[var(--text-secondary)] text-sm" style={{ fontFamily: 'var(--font-body)' }}>
-              Ask London Cortex anything about the city
+
+            <p
+              className="text-sm font-semibold mb-1"
+              style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
+            >
+              Ask London Cortex
             </p>
-            <p className="text-[var(--text-muted)] text-xs mt-1" style={{ fontFamily: 'var(--font-mono)' }}>
-              e.g. &quot;What&apos;s happening near Canary Wharf?&quot;
+            <p
+              className="text-[11px] mb-5"
+              style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
+            >
+              Intelligence at your command
             </p>
+
+            {/* Suggestion chips */}
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleSuggestion(s)}
+                  className="cursor-pointer w-full text-left px-3 py-2 rounded-[var(--radius-md)] text-[11px] transition-all duration-150"
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-secondary)',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-active)';
+                    e.currentTarget.style.color = 'var(--accent)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -43,20 +107,34 @@ export function InvestigatePanel() {
           if (evt.event === "evidence") {
             return <EvidenceCard key={i} data={evt.data} />;
           }
+
           if (evt.event === "reasoning" || evt.event === "answer") {
+            const isAnswer = evt.event === "answer";
             return (
               <div
                 key={i}
-                className="bg-[var(--bg-card)] border border-[var(--border)] rounded-md p-3"
-                style={{ animation: 'fade-up 0.2s ease-out' }}
+                className="rounded-[var(--radius-md)] p-4"
+                style={{
+                  background: 'var(--bg-card)',
+                  border: `1px solid ${isAnswer ? 'var(--border-active)' : 'var(--border)'}`,
+                  borderLeft: isAnswer ? '3px solid var(--accent)' : '1px solid var(--border)',
+                  boxShadow: isAnswer ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+                  animation: 'slide-up 0.25s ease-out',
+                }}
               >
                 <div
-                  className="text-[9px] font-semibold tracking-widest uppercase mb-1.5"
-                  style={{ fontFamily: 'var(--font-mono)', color: evt.event === 'answer' ? 'var(--accent)' : 'var(--text-muted)' }}
+                  className="text-[8px] font-bold tracking-[0.2em] uppercase mb-2"
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    color: isAnswer ? 'var(--accent)' : 'var(--text-muted)',
+                  }}
                 >
-                  {evt.event}
+                  {isAnswer ? '◈ Answer' : '· Reasoning'}
                 </div>
-                <div className="text-sm text-[var(--text-primary)] whitespace-pre-wrap leading-relaxed" style={{ fontFamily: 'var(--font-body)' }}>
+                <div
+                  className="text-[13px] whitespace-pre-wrap leading-relaxed"
+                  style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)' }}
+                >
                   {(evt.data.text as string) || (evt.data.content as string) || JSON.stringify(evt.data)}
                 </div>
               </div>
@@ -66,14 +144,39 @@ export function InvestigatePanel() {
         })}
 
         {result.loading && (
-          <div className="flex items-center gap-2 text-[var(--text-muted)] text-xs py-2" style={{ fontFamily: 'var(--font-mono)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" style={{ animation: 'pulse-glow 1.5s ease-in-out infinite' }} />
-            Investigating...
+          <div
+            className="flex items-center gap-2 py-2 px-1"
+            style={{ animation: 'fade-in 0.3s ease-out' }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: 'var(--accent)',
+                  animation: `dot-bounce 1.4s ease-in-out ${i * 0.16}s infinite`,
+                }}
+              />
+            ))}
+            <span
+              className="text-[11px] ml-1"
+              style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}
+            >
+              Investigating…
+            </span>
           </div>
         )}
 
         {result.error && (
-          <div className="text-[var(--danger)] text-xs border border-[var(--danger)]/20 rounded-md p-2" style={{ fontFamily: 'var(--font-mono)' }}>
+          <div
+            className="text-[11px] rounded-[var(--radius-md)] p-3"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: 'var(--danger)',
+              background: 'rgba(184,80,72,0.07)',
+              border: '1px solid rgba(184,80,72,0.18)',
+            }}
+          >
             {result.error}
           </div>
         )}
@@ -81,33 +184,67 @@ export function InvestigatePanel() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-[var(--border)] p-3 flex gap-2">
+      {/* Input bar */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex gap-2 p-4 shrink-0"
+        style={{
+          borderTop: '1px solid var(--border)',
+          background: 'var(--bg-card)',
+        }}
+      >
         <input
           type="text"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder={result.threadId ? "Follow up..." : "Ask about London..."}
-          className="flex-1 bg-[var(--bg-card)] border border-[var(--border)] rounded-md px-3 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors"
-          style={{ fontFamily: 'var(--font-body)' }}
+          placeholder={result.threadId ? "Follow up…" : "Ask about London…"}
           disabled={result.loading}
+          className="flex-1 px-4 py-2.5 text-sm transition-all duration-150"
+          style={{
+            fontFamily: 'var(--font-body)',
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-md)',
+            color: 'var(--text-primary)',
+            outline: 'none',
+          }}
+          onFocus={(e) => (e.target.style.borderColor = 'var(--border-active)')}
+          onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
         />
         {result.loading ? (
           <button
             type="button"
             onClick={cancel}
-            className="px-3 py-2 bg-[var(--danger)]/10 text-[var(--danger)] border border-[var(--danger)]/20 rounded-md text-xs tracking-wider hover:bg-[var(--danger)]/20 transition-colors"
-            style={{ fontFamily: 'var(--font-mono)' }}
+            className="cursor-pointer px-4 py-2.5 rounded-[var(--radius-md)] text-[11px] font-semibold tracking-wider transition-all duration-150"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              background: 'rgba(184,80,72,0.10)',
+              color: 'var(--danger)',
+              border: '1px solid rgba(184,80,72,0.20)',
+            }}
           >
-            STOP
+            Stop
           </button>
         ) : (
           <button
             type="submit"
-            className="px-4 py-2 bg-[var(--accent)] text-[var(--bg-primary)] rounded-md text-xs font-semibold tracking-wider hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            style={{ fontFamily: 'var(--font-mono)' }}
             disabled={!question.trim()}
+            className="cursor-pointer px-5 py-2.5 rounded-[var(--radius-md)] text-[11px] font-semibold tracking-wider transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              background: 'var(--accent)',
+              color: '#fff',
+              boxShadow: '0 2px 8px rgba(184,96,58,0.28)',
+              border: 'none',
+            }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) e.currentTarget.style.background = 'var(--accent-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent)';
+            }}
           >
-            ASK
+            Ask
           </button>
         )}
       </form>

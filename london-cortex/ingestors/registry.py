@@ -122,6 +122,7 @@ INGESTOR_REGISTRY: list[tuple[str, str, str, int, list[str], list[str]]] = [
 
     # Infrastructure & Energy
     ("ingest_electricity_prices", "cortex.ingestors.electricity_prices", "electricity_prices", 5, ["electricity_prices"], []),
+    ("ingest_elexon_remit", "cortex.ingestors.elexon_remit", "elexon_remit", 5, ["elexon_remit"], []),
     ("ingest_street_manager", "cortex.ingestors.street_manager", "street_manager", 4, ["street_manager"], ["STREET_MANAGER_EMAIL", "STREET_MANAGER_PASSWORD"]),
     ("ingest_network_outages", "cortex.ingestors.network_outages", "network_outages", 4, ["network_outages"], ["CLOUDFLARE_RADAR_API_TOKEN"]),
     ("ingest_cloudflare_radar", "cortex.ingestors.cloudflare_radar", "cloudflare_radar", 4, ["cloudflare_radar"], ["CLOUDFLARE_RADAR_API_TOKEN"]),

@@ -5,10 +5,17 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSSE } from "@/hooks/useSSE";
 import { LogEntry } from "./LogEntry";
 
+const FILTERS = [
+  { key: "ALL",     label: "All" },
+  { key: "INFO",    label: "Info" },
+  { key: "WARNING", label: "Warn" },
+  { key: "ERROR",   label: "Err" },
+] as const;
+
 export function LogStream() {
   const { entries, clear, connected } = useSSE("/stream");
   const parentRef = useRef<HTMLDivElement>(null);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll, setAutoScroll]   = useState(true);
   const [levelFilter, setLevelFilter] = useState<string>("ALL");
 
   const filtered = levelFilter === "ALL"
@@ -35,77 +42,130 @@ export function LogStream() {
   }
 
   const counts = entries.reduce(
-    (acc, e) => {
-      acc[e.level] = (acc[e.level] || 0) + 1;
-      return acc;
-    },
+    (acc, e) => { acc[e.level] = (acc[e.level] || 0) + 1; return acc; },
     {} as Record<string, number>
   );
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
-        <div className="flex gap-1">
-          {[
-            { key: "ALL", label: "ALL" },
-            { key: "INFO", label: "INFO" },
-            { key: "WARNING", label: "WARN" },
-            { key: "ERROR", label: "ERR" },
-          ].map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setLevelFilter(key)}
-              className={`px-2 py-0.5 text-[9px] rounded-sm tracking-wider transition-all duration-150 ${
-                levelFilter === key
-                  ? "bg-[var(--accent)] text-[var(--bg-primary)] font-semibold"
-                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-card)]"
-              }`}
-              style={{ fontFamily: 'var(--font-mono)' }}
-            >
-              {label}
-              {key !== "ALL" && counts[key] ? (
-                <span className="ml-1 opacity-60">{counts[key]}</span>
-              ) : null}
-            </button>
-          ))}
+    <div className="flex flex-col h-full" style={{ background: 'var(--bg-card)' }}>
+      {/* Panel header */}
+      <div
+        className="flex items-center justify-between px-3 py-2 shrink-0"
+        style={{
+          background: 'var(--bg-secondary)',
+          borderBottom: '1px solid var(--border)',
+        }}
+      >
+        {/* Level filter pills */}
+        <div className="flex items-center gap-1">
+          {FILTERS.map(({ key, label }) => {
+            const active = levelFilter === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setLevelFilter(key)}
+                className="cursor-pointer px-2 py-0.5 rounded-full text-[9px] transition-all duration-150"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  background: active ? 'var(--accent)' : 'transparent',
+                  color: active ? '#fff' : 'var(--text-muted)',
+                  border: active ? 'none' : '1px solid var(--border)',
+                  fontWeight: active ? 600 : 400,
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {label}
+                {key !== "ALL" && counts[key] ? (
+                  <span className="ml-1" style={{ opacity: 0.75 }}>{counts[key]}</span>
+                ) : null}
+              </button>
+            );
+          })}
         </div>
-        <div className="flex items-center gap-3 text-[9px] text-[var(--text-muted)]" style={{ fontFamily: 'var(--font-mono)' }}>
-          <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-[var(--accent)]" : "bg-[var(--danger)]"}`} style={!connected ? { animation: 'pulse-glow 1.5s ease-in-out infinite' } : undefined} />
-          <span>{filtered.length}</span>
+
+        {/* Controls */}
+        <div
+          className="flex items-center gap-2.5"
+          style={{ fontFamily: 'var(--font-mono)', fontSize: 9 }}
+        >
+          {/* Connection dot */}
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              background: connected ? 'var(--success)' : 'var(--danger)',
+              boxShadow: connected
+                ? '0 0 6px rgba(77,124,88,0.5)'
+                : '0 0 6px rgba(184,80,72,0.5)',
+              animation: !connected ? 'pulse-glow 1.5s ease-in-out infinite' : undefined,
+            }}
+          />
+          {/* Count */}
+          <span style={{ color: 'var(--text-muted)', tabularNums: true } as React.CSSProperties}>
+            {filtered.length.toLocaleString()}
+          </span>
+          {/* Clear */}
           <button
             onClick={clear}
-            className="text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
+            className="cursor-pointer px-1.5 py-0.5 rounded transition-colors duration-150"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--danger)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
           >
-            CLR
+            clr
           </button>
+          {/* Auto-scroll toggle */}
           <button
             onClick={() => setAutoScroll(!autoScroll)}
-            className={autoScroll ? "text-[var(--accent)]" : "text-[var(--text-muted)]"}
+            className="cursor-pointer px-1.5 py-0.5 rounded transition-colors duration-150"
+            style={{
+              color: autoScroll ? 'var(--accent)' : 'var(--text-muted)',
+              background: autoScroll ? 'var(--accent-dim)' : 'transparent',
+            }}
           >
-            {autoScroll ? "AUTO" : "PAUSED"}
+            {autoScroll ? 'auto' : 'paused'}
           </button>
         </div>
       </div>
 
-      {/* Log entries */}
-      <div ref={parentRef} onScroll={handleScroll} className="flex-1 overflow-auto">
-        <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
-          {virtualizer.getVirtualItems().map((item) => (
+      {/* Virtualised log entries */}
+      <div
+        ref={parentRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-auto"
+        style={{ background: 'var(--bg-card)' }}
+      >
+        {filtered.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center h-full gap-2"
+            style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+          >
             <div
-              key={item.key}
+              className="w-1.5 h-1.5 rounded-full"
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                transform: `translateY(${item.start}px)`,
+                background: connected ? 'var(--success)' : 'var(--danger)',
+                animation: 'pulse-glow 2s ease-in-out infinite',
               }}
-            >
-              <LogEntry entry={filtered[item.index]} />
-            </div>
-          ))}
-        </div>
+            />
+            <span className="text-[10px]">{connected ? 'Listening…' : 'Disconnected'}</span>
+          </div>
+        ) : (
+          <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+            {virtualizer.getVirtualItems().map((item) => (
+              <div
+                key={item.key}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${item.start}px)`,
+                }}
+              >
+                <LogEntry entry={filtered[item.index]} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

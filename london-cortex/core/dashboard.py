@@ -395,23 +395,30 @@ class DashboardServer:
             return web.json_response({"anomalies": [], "observations": [], "discoveries": []})
         db = self._board.get_db()
 
-        # Active anomalies with coordinates
+        # Active anomalies with coordinates (fall back to grid cell centre when lat/lon is null)
         anomalies = await self._board.get_active_anomalies(since_hours=6.0)
-        geo_anomalies = [
-            {
-                "id": a["id"],
-                "lat": a.get("lat"),
-                "lon": a.get("lon"),
-                "source": a.get("source", ""),
-                "description": a.get("description", ""),
-                "severity": a.get("severity", 1),
-                "z_score": a.get("z_score", 0),
-                "timestamp": a.get("timestamp", ""),
-                "location_id": a.get("location_id", ""),
-            }
-            for a in anomalies
-            if a.get("lat") and a.get("lon")
-        ]
+        geo_anomalies = []
+        for a in anomalies:
+            lat = a.get("lat")
+            lon = a.get("lon")
+            if (lat is None or lon is None) and self._graph:
+                loc_id = a.get("location_id", "")
+                cell = self._graph.cells.get(loc_id)
+                if cell:
+                    lat = cell.center_lat
+                    lon = cell.center_lon
+            if lat is not None and lon is not None:
+                geo_anomalies.append({
+                    "id": a["id"],
+                    "lat": lat,
+                    "lon": lon,
+                    "source": a.get("source", ""),
+                    "description": a.get("description", ""),
+                    "severity": a.get("severity", 1),
+                    "z_score": a.get("z_score", 0),
+                    "timestamp": a.get("timestamp", ""),
+                    "location_id": a.get("location_id", ""),
+                })
 
         # Recent observations with coordinates (last 2h, limit 200)
         cursor = await db.execute(

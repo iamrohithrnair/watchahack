@@ -91,6 +91,7 @@ INGESTOR_INTERVALS = {
     "bt_footfall": 600, "met_warnings": 1800, "breathe_london": 1800,
     "crowd_density": 600, "flickr_geo_media": 1800, "social_topics": 1800,
     "worker_sentiment": 1800,
+    "cloud_provider_status": 1800,
 }
 
 # ── Agent Intervals (seconds) ─────────────────────────────────────────────────
