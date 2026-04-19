@@ -1,236 +1,255 @@
 # London Cortex
 
-An autonomous AI that watches London through 63+ real-time data sources — detecting anomalies, finding hidden connections, and building an evolving understanding of the city.
+**Autonomous city intelligence — monitoring London through 106+ real-time data sources with a production-grade Next.js dashboard.**
+
+London Cortex is an autonomous city intelligence platform that watches London in real time, spots unusual changes as they happen, and turns hundreds of fast-moving signals into something a human can actually understand.
+
+If you want the short startup-pitch version: **it feels like a city that can explain itself.**
 
 ## Quick Start
 
 ### Prerequisites
 
-- **Python 3.11+** (required for modern type syntax)
-- **[uv](https://docs.astral.sh/uv/)** (fast Python package manager)
-- **One LLM API key** — either Google Gemini or Z.ai GLM 5.1
+- **Python 3.11+**
+- **[uv](https://docs.astral.sh/uv/)**
+- **Node.js 20+**
+- **A Gemini API key** (or GLM if you want to switch providers)
 
-### Step 1: Clone and Set Up
+### Setup
 
-```bash
-git clone https://github.com/iamrohithrnair/watchahack.git
-cd watchahack
-```
-
-### Step 2: Create Virtual Environment
+From the repo root:
 
 ```bash
 uv venv
-```
-
-This creates a `.venv/` directory in the project root.
-
-### Step 3: Install Dependencies
-
-```bash
+source .venv/bin/activate
 uv pip install -r london-cortex/requirements.txt
+
+cp london-cortex/.env.example london-cortex/.env
+# Edit london-cortex/.env and add GEMINI_API_KEY
 ```
 
-Key dependencies: aiohttp, aiosqlite, networkx, google-genai, httpx, scipy, numpy, and more.
-
-### Step 4: Configure API Key
-
-Create a `.env` file inside `london-cortex/`:
+### Run the backend
 
 ```bash
-# Option A: Google Gemini (recommended)
-echo 'GEMINI_API_KEY=your_gemini_key_here' > london-cortex/.env
-
-# Option B: Z.ai GLM 5.1
-echo 'GLM_API_KEY=your_glm_key_here' > london-cortex/.env
-echo 'LLM_PROVIDER=glm' >> london-cortex/.env
+source .venv/bin/activate
+python -m cortex
 ```
 
-You can also set both keys and switch providers via the dashboard Settings panel.
-
-### Step 5: Run
-
-From the `watchahack/` root directory:
-
-```bash
-.venv/bin/python -m cortex
-```
-
-Or with auto-restart (survives crashes):
+Or with auto-restart:
 
 ```bash
 cd london-cortex && bash run_loop.sh
 ```
 
-### Step 6: Open the Dashboard
+### Run the frontend
 
-- **Dashboard**: http://localhost:3000
-- **API**: http://localhost:8000
+In a second terminal:
 
-The dashboard shows live logs, an interactive map, source health, and an investigation panel. Both ports start automatically when you run the system.
-
-## Stopping
-
-- **Ctrl+C once** — graceful shutdown (waits for in-flight tasks)
-- **Ctrl+C twice** — force exit immediately
-
-## How It Works
-
-### Architecture
-
-```
-                         +------------------+
-                         |    63+ APIs &    |
-                         |   Live Feeds     |
-                         +--------+---------+
-                                  |
-                                  v
-  +---------------------------------------------------------------+
-  |                        INGEST LAYER                           |
-  |  TfL . LAQN . Sentinel . GDELT . yfinance . Met Office . ... |
-  +---------------------------+-----------------------------------+
-                              | raw observations
-                              v
-  +---------------------------------------------------------------+
-  |                     RETINA (Attention)                        |
-  |                                                               |
-  |  Fovea    -- full resolution, every observation analyzed      |
-  |  Perifovea -- medium threshold                               |
-  |  Periphery -- compressed, anomalies trigger saccades         |
-  +---------------------------+-----------------------------------+
-                              | filtered + prioritized
-                              v
-  +---------------------------------------------------------------+
-  |                    INTELLIGENCE LAYER                         |
-  |                                                               |
-  |  Interpreters --> Connectors --> Brain (LLM)                  |
-  |  vision, numeric,  spatial,      synthesizes signals,        |
-  |  text, financial   narrative,    epistemic grounding,        |
-  |                     statistical, generates discoveries       |
-  |                     causal                                    |
-  +----------+----------------------------+----------+-----------+
-             |                            |                     |
-             v                            v                     v
-  +--------------------+     +--------------------+   +------------------+
-  |  Validator         |     |  Curiosity &       |   |  Chronicler      |
-  |  backtests         |     |  Discovery         |   |  multi-day       |
-  |  predictions       |     |  self-directed     |   |  narratives      |
-  +--------------------+     +--------------------+   +------------------+
-             |                            |
-             +-------------+--------------+
-                           |
-                           v
-  +---------------------------------------------------------------+
-  |                      PERSISTENCE                              |
-  |  SQLite + NetworkX graph (500m grid) + EMA baselines          |
-  +---------------------------------------------------------------+
+```bash
+cd london-cortex/frontend
+npm install
+npm run dev
 ```
 
-### Key Concepts
+- **Backend API:** http://localhost:8000
+- **Frontend dashboard:** http://localhost:3000
 
-- **Foveal attention (Retina)** — London's ~4,000 grid cells are divided into attention zones. Anomalies in the periphery trigger "saccades" that snap full attention to the area.
-- **Epistemic integrity** — Confidence decays at each processing stage. Multi-source corroboration is required before anything surfaces as a discovery.
-- **Pluggable LLM backend** — Supports Gemini and GLM 5.1. Rate-limited to prevent API errors.
-- **Self-healing daemon** — Watches for failures and can spawn diagnostic processes to fix issues.
-- **Adaptive scheduling** — Ingestors speed up near anomalies, slow down during quiet periods.
+## What makes it interesting
 
-## Data Sources
+Most city dashboards show data. London Cortex behaves more like a living nervous system.
 
-| Category | Sources |
-|----------|---------|
-| **Traffic & Mobility** | TfL JamCam images, traffic speeds, station crowding, bus AVL, cycle hire, road disruptions, National Rail, Waze, TomTom |
-| **Air Quality** | LAQN, PurpleAir, Google AQ, OpenAQ, Sensor.Community, openSenseMap |
-| **Energy & Grid** | Carbon Intensity, grid generation/demand/frequency, UKPN substations, electricity prices |
-| **Weather** | Open-Meteo forecasts, Met Office observations & warnings |
-| **Financial** | yfinance stocks, CoinGecko crypto, Polymarket prediction markets |
-| **News & Social** | GDELT, Guardian, social sentiment analysis |
-| **Satellite** | Sentinel-2 land use change, Sentinel-5P atmospheric composition |
-| **Public Services** | Police crime data, NHS syndromic surveillance, Land Registry |
-| **Events & Culture** | Eventbrite, V&A Museum, UK Parliament, Companies House |
-| **Nature** | iNaturalist wildlife sightings |
-| **System Health** | Internal metrics, sensor uptime, provider status, data lineage, APM |
+It is wired to **106 ingestors** today across transport, air quality, weather, energy, news, public services, finance, infrastructure, satellite feeds, and more. Instead of leaving you to manually connect the dots, it continuously ingests, compares, prioritizes, and explains what matters.
 
-Ingestors with missing API keys are silently skipped at startup.
+In short, London Cortex:
 
-## Dashboard Features
+1. **Watches** London through 100+ live data ingestors
+2. **Detects** what is genuinely unusual
+3. **Focuses** attention where it matters most
+4. **Shows** the evidence on a map and through live camera imagery
+5. **Explains** what is happening in plain language
 
-- **Live log stream** — WebSocket-powered real-time feed of all agent activity
-- **Interactive map** — Anomaly markers on London's 500m grid with severity levels
-- **Source health** — Status indicators for each active data source
-- **Channel view** — Agent conversation channels (#discoveries, #hypotheses, #anomalies, #requests, #meta)
-- **Image viewer** — TfL JamCam snapshots with lightbox
-- **Investigation** — Ask questions about observations and anomalies via the right panel
-- **Settings** — Configure LLM provider and API keys from the dashboard
+That combination is the real hook: **city-scale sensing, AI attention, and human-readable investigation in one product.**
 
-## LLM Backends
+## Demo walkthrough
 
-| Provider | Env Key | Models |
+### 1. The moment you open it, London is already alive
+
+The first thing you see is not a static dashboard. It feels active. Counts are moving, sources are updating, and the live log is streaming what the system is doing right now.
+
+**What is happening in the background:** every ingestor runs on its own cadence, writes observations into the shared SQLite message board, and updates rolling baselines in memory. The platform is not just collecting snapshots — it is building a sense of what "normal" looks like for each source, place, and metric.
+
+### 2. It does not just collect data — it notices when the city behaves strangely
+
+One of the strongest moments in the product is the anomaly view.
+
+In London Cortex, an **anomaly** is not just "something interesting." It means a signal has moved far enough away from its usual pattern to be statistically unusual. Under the hood, the platform computes a z-score against a rolling baseline, and anything roughly **two standard deviations away from normal or more** gets elevated.
+
+On the map, anomalies are color-coded by severity:
+
+1. **Low**
+2. **Notice**
+3. **Medium**
+4. **High**
+5. **Critical**
+
+So when you see the map change color, you are not looking at decoration. You are looking at the city telling you where something has genuinely shifted.
+
+**What is happening in the background:** anomalies are stored with timestamps, severity, source, and location. If a source does not provide coordinates directly, London Cortex can fall back to the center of the relevant grid cell so the signal still appears on the map in a meaningful place.
+
+### 3. The map is not passive — it is an attention engine
+
+This is where London Cortex starts to feel like a startup demo with real depth.
+
+The city is divided into a **500m spatial grid**, and the system treats it like a visual field. Quiet areas stay in the background. Hotspots get promoted toward the center of attention.
+
+**What is happening in the background:** the Retina layer splits London into three attention zones:
+
+| Zone | Meaning |
+|------|---------|
+| **Focus zone** | Full resolution — every observation stored, all agents process |
+| **Awareness zone** | Moderate resolution — sampled observations, key agents only |
+| **Background** | Minimal monitoring — only anomalies tracked |
+
+When a serious anomaly appears — or when multiple sources agree that something unusual is happening in the same place — the system triggers a **saccade**. In plain English: it snaps attention toward that area, promotes the affected cell into focus, and expands attention to the surrounding neighborhood too.
+
+That is a big part of the wow factor. London Cortex is not trying to look at every square meter with the same intensity all the time. It is dynamically deciding where to pay closer attention, the way a biological nervous system would.
+
+### 4. You can open the camera view and instantly ground the signal in reality
+
+If the map tells you *where* something unusual is happening, the camera view helps answer *what it actually looks like*.
+
+Open the **Cameras** view and you get a grid of recent London traffic camera imagery — effectively a CCTV-style live visual layer for the city. It is a strong demo moment because it takes the platform from abstract intelligence to something tangible and immediate.
+
+**What is happening in the background:** JamCam images are ingested, cached into thumbnail and full-image stores, and surfaced in the dashboard as a live grid. The system also tracks camera health over time, classifying feeds as **active**, **suspect**, or **dead** based on staleness and consecutive failures, so the visual layer can be trusted instead of blindly displayed.
+
+### 5. The left side is where the city starts talking to itself
+
+One of the most compelling product details is the channel system: **#discoveries, #hypotheses, #anomalies, #requests, and #meta**.
+
+This makes the platform feel less like a database and more like an active intelligence team. You are not only seeing outputs — you are seeing the internal conversation that leads to those outputs.
+
+**What is happening in the background:** specialist agents write into shared channels through the message board. Interpreters look at raw signals, connectors link events across domains, the Brain synthesizes bigger narratives, the validator checks predictions, and the chronicler tracks longer-running stories. The dashboard exposes that internal coordination in a human-readable way.
+
+### 6. The investigation panel is where it stops being a dashboard and becomes a teammate
+
+This is probably the feature that makes people lean in.
+
+You can ask a natural language question like a real operator would: *What is happening in this part of London? Why are transport and air quality both spiking? Is this related to a public event?*
+
+Then London Cortex investigates for you.
+
+**What is happening in the background:** the Investigator agent plans the query first, searches the platform's own anomalies, observations, channels, and discoveries, then combines that with live web context. It can follow leads, pull related evidence, read article content, and stream findings back into the UI as the answer is forming. So the user experience feels conversational, but the backend behavior is structured, evidence-led, and multi-stage.
+
+### 7. It keeps the human in control without breaking the magic
+
+There is also a practical polish to the experience. You can see system stats, source health, live logs, and settings for the LLM backend in one place.
+
+**What is happening in the background:** the backend exposes real-time API and WebSocket endpoints for health, logs, anomalies, channels, map data, cameras, and investigations. The frontend is effectively riding on top of a continuously running city intelligence engine, not polling a dead dataset.
+
+## Architecture
+
+```
+  106+ Data Sources
+        │
+        ▼
+  ┌──────────────────────────────────────┐
+  │           INGEST LAYER               │
+  │  TfL · LAQN · Sentinel · GDELT ·     │
+  │  yfinance · Met Office · BBC · ...   │
+  └──────────────┬───────────────────────┘
+                 │ raw observations
+                 ▼
+  ┌──────────────────────────────────────┐
+  │      ATTENTION ENGINE (Retina)       │
+  │  Dynamic focus over London grid      │
+  └──────────────┬───────────────────────┘
+                 │ focused observations
+                 ▼
+  ┌──────────────────────────────────────┐
+  │        INTERPRET LAYER               │
+  │  Vision · Numeric · Text · Financial │
+  └──────────────┬───────────────────────┘
+                 │ anomalies
+                 ▼
+  ┌──────────────────────────────────────┐
+  │        CONNECT LAYER                 │
+  │  Spatial · Narrative · Statistical   │
+  │  Causal chains                       │
+  └──────────────┬───────────────────────┘
+                 │ hypotheses
+                 ▼
+  ┌──────────────────────────────────────┐
+  │           BRAIN                      │
+  │  Synthesis · Discovery · Validation  │
+  └──────────────┬───────────────────────┘
+                 │ discoveries
+                 ▼
+  ┌──────────────────────────────────────┐
+  │     Next.js Dashboard (:3000)        │
+  │  Map · Logs · Investigation · Feed   │
+  └──────────────────────────────────────┘
+```
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Data sources | 106 ingestors (TfL, LAQN, GDELT, Sentinel, BBC, ...) |
+| AI agents | 15 agents (Brain, Interpreters, Connectors, Validator, Chronicler, Investigator, ...) |
+| LLM | Google Gemini (3.1 Flash-Lite + 3 Flash) or GLM |
+| Backend | Python, aiohttp, SQLite, NetworkX |
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS |
+| Maps | Leaflet with dark CartoDB tiles |
+| Real-time | SSE for logs, SWR polling for data |
+| Deployment | Local dev or Docker Compose |
+
+## Frontend pages
+
+| Page | Description |
+|------|-------------|
+| `/` | Dashboard — live map with anomaly markers, attention overlay, and virtualized log stream |
+| `/investigate` | Natural language investigation — ask questions and get streamed answers |
+| `/channels` | Agent conversation feed — Slack-style view of #discoveries, #hypotheses, and #anomalies |
+| `/cameras` | TfL JamCam thumbnail grid with lightbox viewer |
+
+## LLM backends
+
+| Provider | Env key | Models |
 |----------|---------|--------|
-| `gemini` (default) | `GEMINI_API_KEY` | Gemini 2.0 Flash, Gemini 2.5 Pro |
+| `gemini` (default) | `GEMINI_API_KEY` | Gemini 3.1 Flash-Lite, Gemini 3 Flash |
 | `glm` | `GLM_API_KEY` | GLM 4 Flash, GLM 4 Plus |
 
-Configure via `.env` file or the dashboard Settings panel.
+Configure via `london-cortex/.env` or the dashboard settings panel.
 
-## Project Structure
+## Project structure
 
-```
+```text
 watchahack/
-+-- cortex/ -> london-cortex/     # Symlink
-+-- london-cortex/
-|   +-- run.py                    # Entry point
-|   +-- __main__.py               # python -m cortex support
-|   +-- requirements.txt
-|   +-- pyproject.toml
-|   +-- .env                      # API keys (create this)
-|   |
-|   +-- core/                     # Infrastructure
-|   |   +-- board.py              # SQLite message hub (7 tables)
-|   |   +-- config.py             # Intervals, endpoints, LLM config
-|   |   +-- coordinator.py        # Adaptive scheduler
-|   |   +-- daemon.py             # Self-healing watcher
-|   |   +-- dashboard.py          # aiohttp API + frontend server
-|   |   +-- epistemics.py         # Confidence decay & grounding
-|   |   +-- graph.py              # NetworkX spatial grid (500m)
-|   |   +-- image_store.py        # Two-tier image storage
-|   |   +-- llm.py                # Pluggable LLM backend
-|   |   +-- memory.py             # EMA baselines + JSON persistence
-|   |   +-- models.py             # All dataclasses
-|   |   +-- retina.py             # Foveal attention zones
-|   |   +-- scheduler.py          # Rate limiter
-|   |
-|   +-- agents/                   # Intelligence layer
-|   |   +-- brain.py              # Main synthesis engine
-|   |   +-- interpreters.py       # Vision, Numeric, Text, Financial
-|   |   +-- connectors.py         # Spatial, Narrative, Statistical, Causal
-|   |   +-- validator.py          # Prediction backtesting
-|   |   +-- curiosity.py          # Self-directed investigation
-|   |   +-- chronicler.py         # Multi-day narrative tracking
-|   |   +-- discovery.py          # Cross-domain exploration
-|   |   +-- explorers.py          # Hypothesis testing
-|   |   +-- web_searcher.py       # Web verification
-|   |   +-- investigator.py       # Interactive investigation
-|   |
-|   +-- ingestors/                # 63+ data source adapters
-|   |   +-- registry.py           # Declarative registration table
-|   |   +-- *.py                  # One per data source
-|   |
-|   +-- static/                   # Web dashboard
-|   |   +-- dashboard.html        # Line Art Minimalistic UI
-|   |   +-- london_grid.json      # 500m grid cell definitions
-|   |
-|   +-- data/                     # Runtime (auto-created)
-|       +-- graph.db              # SQLite database
-|       +-- images/               # Image cache
-|       +-- memory/               # Memory persistence
-|       +-- logs/                 # System logs
+├── cortex/ -> london-cortex/     # Symlink
+├── docs/                         # Demo notes and supporting docs
+├── london-cortex/
+│   ├── run.py                    # Entry point
+│   ├── __main__.py               # python -m cortex support
+│   ├── core/                     # Infrastructure
+│   │   ├── board.py              # SQLite message hub
+│   │   ├── config.py             # Intervals, endpoints, LLM config
+│   │   ├── coordinator.py        # Adaptive scheduler
+│   │   ├── dashboard.py          # aiohttp API server
+│   │   ├── graph.py              # 500m spatial grid
+│   │   ├── llm.py                # Pluggable LLM backend
+│   │   ├── memory.py             # EMA baselines and persistence
+│   │   ├── retina.py             # Attention engine
+│   │   └── ...
+│   ├── agents/                   # Intelligence layer
+│   ├── ingestors/                # 106 data source adapters
+│   ├── frontend/                 # Next.js app
+│   └── data/                     # Runtime data
+└── README.md
 ```
 
 ## Notes
 
-- The SQLite database and image cache grow continuously. Images are auto-cleaned (thumbnails after 48h, full images after 7d).
-- Most data source APIs work with free-tier keys. Some may incur costs at scale.
-- The system is fully autonomous — it continuously ingests, analyzes, and discovers patterns without manual intervention.
-
-## Built With
-
-Python 3.11+ | asyncio | SQLite (aiosqlite) | NetworkX | Google Gemini / Z.ai GLM 5.1 | Leaflet.js | aiohttp | uv
+- Missing API keys cause affected ingestors to be skipped at startup.
+- The SQLite database and image cache grow continuously.
+- Images are auto-cleaned: thumbnails after 48 hours, full images after 7 days.
+- The backend and frontend are started separately in local development.
